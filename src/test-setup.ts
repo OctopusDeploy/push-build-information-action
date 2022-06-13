@@ -12,5 +12,6 @@ process.env = Object.assign(process.env, {
   INPUT_USE_DELTA_COMPRESSION: false,
   RUNNER_TEMP: tmpdir.name,
   RUNNER_TOOL_CACHE: tmpdir.name,
-  GITHUB_ACTION: '1'
+  GITHUB_ACTION: '1',
+  GITHUB_RUN_ID: '1'
 })

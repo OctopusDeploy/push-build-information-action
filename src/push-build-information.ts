@@ -35,16 +35,19 @@ function getArgs(parameters: InputParameters): string[] {
 }
 
 export async function pushBuildInformation(
+  runId: string,
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
-  let branch = null
-  if (context.ref.startsWith('refs/heads/')) {
-    branch = context.ref.substring('refs/heads/'.length)
+  let branch = parameters.branch
+  if (branch === undefined || branch === '') {
+    branch = context.ref;
+    if (branch.startsWith('refs/heads/')) {
+      branch = branch.substring('refs/heads/'.length)
+    }
   }
 
   const repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
-  const runId = process.env.GITHUB_RUN_ID
 
   if (runId === undefined) {
     error(`GitHub run number is not defined`)

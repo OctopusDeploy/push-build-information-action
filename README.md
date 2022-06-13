@@ -24,6 +24,7 @@ steps:
       space: '<space>'
       packages: |
         <packageId1>
+      version: '<versionofpackages>'
 ```
 
 ## 📥 Inputs
@@ -40,5 +41,6 @@ The following inputs are optional:
 
 | Name             | Description                                                                                                                                                                       |    Default     |
 | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------: |
+| `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                          |                |
 | `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists`, `OverwriteExisting`, and `IgnoreIfExists`. | `FailIfExists` |
 | `debug`          | Logs the build information data.                                                                                                                                                  |    `false`     |
