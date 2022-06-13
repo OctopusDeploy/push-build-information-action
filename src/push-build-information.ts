@@ -1,5 +1,5 @@
 import {InputParameters} from './input-parameters'
-import {info, error, setFailed} from '@actions/core'
+import {info, setFailed} from '@actions/core'
 import {exec, ExecOptions} from '@actions/exec'
 import {context} from '@actions/github'
 import * as fs from 'fs'
@@ -48,12 +48,6 @@ export async function pushBuildInformation(
   }
 
   const repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
-
-  if (runId === undefined) {
-    error(`GitHub run number is not defined`)
-    setFailed()
-    return
-  }
 
   const build = {
     BuildEnvironment: 'GitHub Actions',
