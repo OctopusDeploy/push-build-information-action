@@ -103,3 +103,4 @@ lib/**/*
 octo
 out
 buildInformation.json
+reports/

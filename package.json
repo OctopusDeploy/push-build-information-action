@@ -20,6 +20,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "jest": "^28.1.1",
     "jest-circus": "^28.0.3",
+    "jest-junit": "^13.2.0",
     "js-yaml": "^4.1.0",
     "prettier": "2.6.2",
     "tmp": "^0.2.1",
@@ -48,6 +49,15 @@
     },
     "verbose": true
   },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "jest-junit.xml",
+    "ancestorSeperator": " > ",
+    "uniqueOutputName": "false",
+    "suiteNameTemplate": "{filepath}",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{title}"
+  },
   "keywords": [
     "cli",
     "deployment",
@@ -68,7 +78,7 @@
     "format-check": "prettier --check **/*.ts",
     "prebuild": "eslint src/**/*.ts",
     "postbuild": "ncc build -o dist",
-    "test": "jest"
+    "test": "jest --ci --reporters=default --reporters=jest-junit"
   },
   "version": "0.0.1"
 }
