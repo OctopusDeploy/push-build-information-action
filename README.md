@@ -1,4 +1,4 @@
-# push-package-action
+# push-build-information-action
 
 <img alt= "" src="https://github.com/OctopusDeploy/push-build-information-action/raw/main/assets/github-actions-octopus.png" />
 
@@ -6,7 +6,7 @@ This is a GitHub Action to push build information to [Octopus Deploy](https://oc
 
 ## Examples
 
-Incorporate the following actions in your workflow to push a package to Octopus Deploy using an API key, a target instance (i.e. `server`), and a project:
+Incorporate the following actions in your workflow to push build information to Octopus Deploy using an API key, a target instance (i.e. `server`), and a package:
 
 ```yml
 env:
