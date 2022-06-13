@@ -6,8 +6,6 @@ env:
   SA_PASSWORD: 'yourStrong45@Password'
   ADMIN_API_KEY: 'API-ZPJJ0PC4MFKXZPTITE151VRR3IMCJRW'
   SERVER_URL: 'http://localhost:8080'
-  OCTOPUS_CLI_SERVER: ${{ env.SERVER_URL }}
-  OCTOPUS_CLI_API_KEY: ${{ env.ADMIN_API_KEY }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -54,6 +52,9 @@ jobs:
       
       - name: Pushed build information in Octopus Deploy
         uses: ./
+        env:
+          OCTOPUS_CLI_SERVER: ${{ env.SERVER_URL }}
+          OCTOPUS_CLI_API_KEY: ${{ env.ADMIN_API_KEY }}
         with:
           branch: 'test'
           packages: 'Testing'
