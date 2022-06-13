@@ -44,6 +44,9 @@ jobs:
           version: '*'
       
       - name: Compile and run tests
+        env:
+          OCTOPUS_CLI_SERVER: ${{ env.SERVER_URL }}
+          OCTOPUS_CLI_API_KEY: ${{ env.ADMIN_API_KEY }}
         run: npm run all
 
       - name: Test Report
