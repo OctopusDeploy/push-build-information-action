@@ -10,8 +10,8 @@ Incorporate the following actions in your workflow to push build information to 
 
 ```yml
 env:
-  OCTOPUS_CLI_SERVER: ${{ secrets.OCTOPUS_URL }}
-  OCTOPUS_CLI_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+  OCTOPUS_SERVER: ${{ secrets.OCTOPUS_URL }}
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙
