@@ -8,9 +8,9 @@ describe('inputs', () => {
   }, 100000)
 })
 
-describe('releases', () => {
-  it('successfully pushes a package', async () => {
+describe('build-infos', () => {
+  it('successfully pushes build information', async () => {
     const inputParameters = inputs.get()
-    octopus.pushPackage(inputParameters)
+    octopus.pushBuildInformation("1", inputParameters)
   }, 100000)
 })

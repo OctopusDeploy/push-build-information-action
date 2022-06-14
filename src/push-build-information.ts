@@ -1,8 +1,8 @@
 import {InputParameters} from './input-parameters'
-import {info, error, setFailed} from '@actions/core'
+import {info, setFailed} from '@actions/core'
 import {exec, ExecOptions} from '@actions/exec'
 import {context} from '@actions/github'
-import * as fs from 'fs'
+import {promises as fsPromises} from 'fs'
 
 function getArgs(parameters: InputParameters): string[] {
   info('🔣 Parsing inputs...')
@@ -35,22 +35,19 @@ function getArgs(parameters: InputParameters): string[] {
 }
 
 export async function pushBuildInformation(
+  runId: string,
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
-  let branch = null
-  if (context.ref.startsWith('refs/heads/')) {
-    branch = context.ref.substring('refs/heads/'.length)
+  let branch = parameters.branch
+  if (branch === undefined || branch === '') {
+    branch = context.ref;
+    if (branch.startsWith('refs/heads/')) {
+      branch = branch.substring('refs/heads/'.length)
+    }
   }
 
   const repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
-  const runId = process.env.GITHUB_RUN_ID
-
-  if (runId === undefined) {
-    error(`GitHub run number is not defined`)
-    setFailed()
-    return
-  }
 
   const build = {
     BuildEnvironment: 'GitHub Actions',
@@ -64,10 +61,7 @@ export async function pushBuildInformation(
 
   info(`Writing build information to buildInformation.json`)
   const jsonContent = JSON.stringify(build)
-  await fs.writeFile('buildInformation.json', jsonContent, err => {
-    if (err) throw err
-    info(`File saved successfully`)
-  })
+  await fsPromises.writeFile('buildInformation.json', jsonContent)
 
   if (parameters.debug) {
     info(`Build Information: ${jsonContent}`)

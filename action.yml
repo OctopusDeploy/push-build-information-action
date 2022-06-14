@@ -1,17 +1,19 @@
-name: 'Push Package to Octopus Deploy'
-description: 'GitHub Action to push a package to Octopus Deploy'
+name: 'Push Build Information to Octopus Deploy'
+description: 'GitHub Action to push build information to Octopus Deploy'
 author: 'Octopus Deploy'
 branding:
   color: 'blue'
   icon: 'package'
 
 inputs:
+  branch:
+    description: 'The branch name, if omitted the GitHub ref will be used.'
   debug:
     default: false
     description: 'Enable debug logging.'
   overwrite_mode:
     default: 'FailIfExists'
-    description: 'Determines the action to perform with package if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
+    description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
   packages:
     description: 'A multi-line list of packages to push to Octopus Deploy.'
   space:
