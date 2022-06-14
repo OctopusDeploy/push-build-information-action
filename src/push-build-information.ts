@@ -1,7 +1,7 @@
 import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
-import {Client, ClientConfiguration, GlobalAndSpaceRootLinks} from '@octopusdeploy/api-client'
+import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
 
 async function getOctopusClient(parameters: InputParameters): Promise<Client> {
   const config: ClientConfiguration = {
@@ -21,7 +21,6 @@ export async function pushBuildInformation(
   runId: string,
   parameters: InputParameters
 ): Promise<void> {
-
   // get the branch name
   let branch = parameters.branch
   if (branch === undefined || branch === '') {
@@ -54,17 +53,15 @@ export async function pushBuildInformation(
 
   try {
     for (const packageId of parameters.packages) {
-      info(`Pushing build information for package '${packageId}' version '${parameters.version}'`)
+      info(
+        `Pushing build information for package '${packageId}' version '${parameters.version}'`
+      )
       build.PackageId = packageId
       const client = await getOctopusClient(parameters)
-      const buildInfoUriTmpl = client.getLink("BuildInformation")
-      await client.post(
-        buildInfoUriTmpl,
-        build,
-        {
-          overwriteMode: parameters.overwriteMode
-        }
-      )
+      const buildInfoUriTmpl = client.getLink('BuildInformation')
+      await client.post(buildInfoUriTmpl, build, {
+        overwriteMode: parameters.overwriteMode
+      })
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
