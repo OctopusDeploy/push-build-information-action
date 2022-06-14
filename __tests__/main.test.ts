@@ -8,9 +8,13 @@ describe('inputs', () => {
   }, 100000)
 })
 
-describe('build-infos', () => {
+describe('build information', () => {
   it('successfully pushes build information', async () => {
     const inputParameters = inputs.get()
-    octopus.pushBuildInformation("1", inputParameters)
+    const runId = process.env.GITHUB_RUN_ID
+    if (runId === undefined) {
+      throw new Error('GitHub run number is not defined')
+    }
+    await octopus.pushBuildInformation(runId, inputParameters)
   }, 100000)
 })
