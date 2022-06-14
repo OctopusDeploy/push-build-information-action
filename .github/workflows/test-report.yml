@@ -1,4 +1,4 @@
-name: 'Test Report'
+name: 'test-report'
 on:
   workflow_run:
     workflows: ['build-test']
@@ -8,9 +8,9 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - uses: dorny/test-reporter@v1
-        with:
-          artifact: test-results
-          name: JEST Tests
-          path: '*.xml'
-          reporter: jest-junit
+    - uses: dorny/test-reporter@v1
+      with:
+        artifact: test-results
+        name: JEST Tests
+        path: '*.xml'
+        reporter: jest-junit
