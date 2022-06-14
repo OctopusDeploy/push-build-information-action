@@ -14,10 +14,6 @@ env:
   OCTOPUS_CLI_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
 steps:
   - uses: actions/checkout@v2
-  - name: Install Octopus CLI 🐙
-    uses: OctopusDeploy/install-octopus-cli-action@<version>
-    with:
-      version: latest
   - name: Push build information to Octopus Deploy 🐙
     uses: OctopusDeploy/push-build-information-action@<version>
     with:
