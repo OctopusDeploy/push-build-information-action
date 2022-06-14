@@ -59,7 +59,7 @@ jobs:
       - name: Push build information to Octopus Deploy
         uses: ./
         env:
-          OCTOPUS_SERVER: ${{ env.SERVER_URL }}
+          OCTOPUS_HOST: ${{ env.SERVER_URL }}
           OCTOPUS_API_KEY: ${{ env.ADMIN_API_KEY }}
         with:
           space: 'Spaces-1'

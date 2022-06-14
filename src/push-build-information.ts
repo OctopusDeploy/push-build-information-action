@@ -6,7 +6,7 @@ import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
 async function getOctopusClient(parameters: InputParameters): Promise<Client> {
   const config: ClientConfiguration = {
     apiKey: process.env['OCTOPUS_API_KEY'],
-    apiUri: process.env['OCTOPUS_SERVER'],
+    apiUri: process.env['OCTOPUS_HOST'],
     space: parameters.space,
     autoConnect: true
   }
