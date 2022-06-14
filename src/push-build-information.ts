@@ -52,16 +52,20 @@ export async function pushBuildInformation(
   }
 
   try {
+    const client = await getOctopusClient(parameters)
+    const buildInfoUriTmpl = client.getLink('BuildInformation')
+
     for (const packageId of parameters.packages) {
       info(
         `Pushing build information for package '${packageId}' version '${parameters.version}'`
       )
+
       build.PackageId = packageId
-      const client = await getOctopusClient(parameters)
-      const buildInfoUriTmpl = client.getLink('BuildInformation')
       await client.post(buildInfoUriTmpl, build, {
         overwriteMode: parameters.overwriteMode
       })
+
+      info('Successfully pushed build information to Octopus')
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
