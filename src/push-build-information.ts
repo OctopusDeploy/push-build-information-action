@@ -2,7 +2,7 @@ import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {exec, ExecOptions} from '@actions/exec'
 import {context} from '@actions/github'
-import {writeFile} from 'fs/promises'
+import {promises as fsPromises} from 'fs'
 
 function getArgs(parameters: InputParameters): string[] {
   info('🔣 Parsing inputs...')
@@ -61,7 +61,7 @@ export async function pushBuildInformation(
 
   info(`Writing build information to buildInformation.json`)
   const jsonContent = JSON.stringify(build)
-  await writeFile('buildInformation.json', jsonContent)
+  await fsPromises.writeFile('buildInformation.json', jsonContent)
 
   if (parameters.debug) {
     info(`Build Information: ${jsonContent}`)
