@@ -2,7 +2,7 @@
 
 <img alt= "" src="https://github.com/OctopusDeploy/push-build-information-action/raw/main/assets/github-actions-octopus.png" />
 
-This is a GitHub Action to push build information to [Octopus Deploy](https://octopus.com/). It requires the [Octopus CLI](https://octopus.com/docs/octopus-rest-api/octopus-cli); please ensure to include [install-octopus-cli-action](https://github.com/OctopusDeploy/install-octopus-cli-action) in your workflow (example below) before using this GitHub Action.
+This is a GitHub Action to push build information to [Octopus Deploy](https://octopus.com/).
 
 ## Examples
 
