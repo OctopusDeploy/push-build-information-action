@@ -30,7 +30,6 @@ The following inputs are required:
 | Name       | Description                                                                | Default |
 | :--------- | :------------------------------------------------------------------------- | :-----: |
 | `packages` | A multi-line list of packages to push build information to Octopus Deploy. |         |
-| `space`    | The name or ID of a space within which this command will be executed.      |         |
 | `version`  | The version of the package(s).                                             |         |
 
 The following inputs are optional:
