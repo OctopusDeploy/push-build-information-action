@@ -49,14 +49,13 @@ jobs:
           OCTOPUS_CLI_API_KEY: ${{ env.ADMIN_API_KEY }}
         run: npm run all
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: JEST Tests
+          name: test-results
           path: reports/jest-*.xml
-          reporter: jest-junit
-      
+
       - name: Add server url to CORS
         run: |
           curl '${{ env.SERVER_URL }}/api/configuration/webportal/values' -X 'PUT' -H 'Content-Type: application/json' -H 'X-Octopus-ApiKey: ${{ env.ADMIN_API_KEY }}' --data-binary '{"Security":{"CorsWhitelist":"http://localhost,${{ env.SERVER_URL }}","ReferrerPolicy":"no-referrer","ContentSecurityPolicyEnabled":true,"HttpStrictTransportSecurityEnabled":false,"HttpStrictTransportSecurityMaxAge":31556926,"XOptions":{"XFrameOptionAllowFrom":null,"XFrameOptions":"None"}}}' -o /dev/null -s -w "%{http_code}\n"
