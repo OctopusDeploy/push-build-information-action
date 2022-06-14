@@ -101,6 +101,7 @@ lib/**/*
 # ignore test artifacts
 *.pdb
 octo
-out
+out/
 buildInformation.json
 reports/
+dist/
