@@ -1,37 +1,20 @@
 import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
-import {exec, ExecOptions} from '@actions/exec'
 import {context} from '@actions/github'
-import {promises as fsPromises} from 'fs'
+import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
 
-function getArgs(parameters: InputParameters): string[] {
-  info('🔣 Parsing inputs...')
-
-  const args = ['build-information']
-
-  if (
-    parameters.overwriteMode.length > 0 &&
-    parameters.overwriteMode !== 'FailIfExists'
-  ) {
-    if (
-      parameters.overwriteMode !== 'OverwriteExisting' &&
-      parameters.overwriteMode !== 'IgnoreIfExists'
-    ) {
-      setFailed(
-        'The input value, overwrite_mode is invalid; accept values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
-      )
-    }
-    args.push(`--overwrite-mode=${parameters.overwriteMode}`)
+async function getOctopusClient(parameters: InputParameters): Promise<Client> {
+  const config: ClientConfiguration = {
+    apiKey: process.env['OCTOPUS_API_KEY'],
+    apiUri: process.env['OCTOPUS_HOST'],
+    space: parameters.space,
+    autoConnect: true
   }
 
-  if (parameters.packages.length > 0)
-    parameters.packages.map(p => args.push(`--package-id=${p}`))
+  const client = await Client.create(config)
+  if (client === undefined) throw new Error('Client could not be constructed')
 
-  if (parameters.space.length > 0) args.push(`--space=${parameters.space}`)
-  if (parameters.version.length > 0)
-    args.push(`--version=${parameters.version}`)
-
-  return args
+  return client
 }
 
 export async function pushBuildInformation(
@@ -41,7 +24,8 @@ export async function pushBuildInformation(
   // get the branch name
   let branch = parameters.branch
   if (branch === undefined || branch === '') {
-    branch = context.ref;
+    // if we don't get a branch passed in, use branch from GitHub context
+    branch = context.ref
     if (branch.startsWith('refs/heads/')) {
       branch = branch.substring('refs/heads/'.length)
     }
@@ -50,63 +34,43 @@ export async function pushBuildInformation(
   const repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
 
   const build = {
-    BuildEnvironment: 'GitHub Actions',
-    BuildNumber: runId.toString(),
-    BuildUrl: `${repoUri}/actions/runs/${runId}`,
-    Branch: branch,
-    VcsType: 'Git',
-    VcsRoot: `${repoUri}`,
-    VcsCommitNumber: context.sha
+    PackageId: '',
+    Version: parameters.version,
+    OctopusBuildInformation: {
+      BuildEnvironment: 'GitHub Actions',
+      BuildNumber: runId.toString(),
+      BuildUrl: `${repoUri}/actions/runs/${runId}`,
+      Branch: branch,
+      VcsType: 'Git',
+      VcsRoot: `${repoUri}`,
+      VcsCommitNumber: context.sha
+    }
   }
-
-  info(`Writing build information to buildInformation.json`)
-  const jsonContent = JSON.stringify(build)
-  await fsPromises.writeFile('buildInformation.json', jsonContent)
 
   if (parameters.debug) {
-    info(`Build Information: ${jsonContent}`)
-  }
-
-  const args = getArgs(parameters)
-  args.push('--file=buildInformation.json')
-
-  const options: ExecOptions = {
-    listeners: {
-      stdline: (line: string) => {
-        if (line.length <= 0) return
-
-        if (line.includes('Octopus Deploy Command Line Tool')) {
-          const version = line.split('version ')[1]
-          info(`🐙 Using Octopus Deploy CLI ${version}...`)
-          return
-        }
-
-        if (line.includes('Handshaking with Octopus Server')) {
-          info(`🤝 Handshaking with Octopus Deploy`)
-          return
-        }
-
-        if (line.includes('Authenticated as:')) {
-          info(`✅ Authenticated`)
-          return
-        }
-
-        if (line === 'Push successful') {
-          info(`🎉 Push successful!`)
-          return
-        }
-
-        info(line)
-      }
-    },
-    silent: true
+    info(`Build Information:\n${JSON.stringify(build, null, 2)}`)
   }
 
   try {
-    await exec('octo', args, options)
+    const client = await getOctopusClient(parameters)
+    const buildInfoUriTmpl = client.getLink('BuildInformation')
+
+    for (const packageId of parameters.packages) {
+      info(
+        `Pushing build information for package '${packageId}' version '${parameters.version}'`
+      )
+
+      build.PackageId = packageId
+      await client.post(buildInfoUriTmpl, build, {
+        overwriteMode: parameters.overwriteMode
+      })
+
+      info('Successfully pushed build information to Octopus')
+    }
   } catch (e: unknown) {
     if (e instanceof Error) {
       setFailed(e)
     }
+    throw e
   }
 }

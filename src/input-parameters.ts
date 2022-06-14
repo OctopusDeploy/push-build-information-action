@@ -1,8 +1,8 @@
 import {getBooleanInput, getMultilineInput, getInput} from '@actions/core'
 
 export interface InputParameters {
-  branch: string
-  debug: boolean
+  branch?: string
+  debug?: boolean
   overwriteMode: string
   packages: string[]
   space: string
@@ -14,8 +14,8 @@ export function get(): InputParameters {
     branch: getInput('branch'),
     debug: getBooleanInput('debug'),
     overwriteMode: getInput('overwrite_mode'),
-    packages: getMultilineInput('packages'),
-    space: getInput('space'),
-    version: getInput('version')
+    packages: getMultilineInput('packages', {required: true}),
+    space: getInput('space', {required: true}),
+    version: getInput('version', {required: true})
   }
 }
