@@ -21,6 +21,7 @@ export async function pushBuildInformation(
   runId: string,
   parameters: InputParameters
 ): Promise<void> {
+
   // get the branch name
   let branch = parameters.branch
   if (branch === undefined || branch === '') {
