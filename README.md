@@ -4,6 +4,15 @@
 
 This is a GitHub Action to push build information to [Octopus Deploy](https://octopus.com/).
 
+This action captures the following build information:
+  - **BuildNumber**: _The unique ID of the build that was triggered._
+  - **BuildUrl**: _The link to the build that was triggered._
+  - **Branch**: _The branch or tag name that triggered the build._
+  - **VcsRoot**: _The URL to the GitHub repository._
+  - **VcsCommitNumber**: _The commit SHA that triggered the build._
+
+This action **does not** capture any commits since the last build.
+
 ## Examples
 
 Incorporate the following actions in your workflow to push build information to Octopus Deploy using an API key, a target instance (i.e. `server`), and a package:
