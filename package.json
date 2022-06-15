@@ -65,7 +65,7 @@
     "github-actions"
   ],
   "license": "Apache-2.0",
-  "main": "out/index.js",
+  "main": "dist/index.js",
   "name": "push-build-information-action",
   "repository": {
     "type": "git",
