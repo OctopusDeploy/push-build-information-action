@@ -12,6 +12,5 @@ jobs:
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
-          command: github-release
           package-name: ${{env.ACTION_NAME}}
           release-type: node
