@@ -1,6 +1,5 @@
 name: 'build-test'
 on:
-  pull_request:
   push:
 env:
   SA_PASSWORD: 'yourStrong45@Password'
