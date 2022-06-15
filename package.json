@@ -80,5 +80,5 @@
     "postbuild": "ncc build -o dist",
     "test": "jest --ci --reporters=default --reporters=jest-junit"
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
