@@ -24,7 +24,7 @@ env:
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙
-    uses: OctopusDeploy/push-build-information-action@v0 // {x-release-please-start-major}
+    uses: OctopusDeploy/push-build-information-action@<version>
     with:
       packages: |
         '<packageId1>'
