@@ -14,9 +14,20 @@ jobs:
         run: npm ci
       - name: build
         run: npm run build
+      - name: update README
+        run: |-
+          PACKAGE_VERSION=$(cat package.json \
+            | grep version \
+            | head -1 \
+            | awk -F: '{ print $2 }' \
+            | sed 's/[",]//g')
+          git config --global user.name "team-integrations-fnm-bot"
+          git config user.email 'integrationsfnmbot@octopus.com'
+          sed -i 's/uses: OctopusDeploy\/push-build-information-action@.*/uses: OctopusDeploy\/push-build-information-action@v'$PACKAGE_VERSION'/g' README.md
       - name: commit
         run: |-
           git config --global user.name "team-integrations-fnm-bot"
-          git config user.email 'integrationsfnmbot@octopus.com '
+          git config user.email 'integrationsfnmbot@octopus.com'
+          git add README.md
           git add dist/
-          git diff-index --quiet HEAD || (git commit -m "chore: build dist" && git push origin)
+          git diff-index --quiet HEAD || (git commit -m "chore: build dist and update README" && git push origin)
