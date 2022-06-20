@@ -19,4 +19,4 @@ jobs:
           git config --global user.name "team-integrations-fnm-bot"
           git config user.email 'integrationsfnmbot@octopus.com '
           git add dist/
-          git diff-index --quiet HEAD || git commit -m "chore: build dist" && git push origin
+          git diff-index --quiet HEAD || (git commit -m "chore: build dist" && git push origin)
