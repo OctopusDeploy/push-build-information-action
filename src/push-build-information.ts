@@ -2,6 +2,7 @@ import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
+import {PushEvent, Commit} from '@octokit/webhooks-types/schema'
 
 async function getOctopusClient(parameters: InputParameters): Promise<Client> {
   const config: ClientConfiguration = {
@@ -11,7 +12,7 @@ async function getOctopusClient(parameters: InputParameters): Promise<Client> {
     autoConnect: true
   }
 
-  const client = await Client.create(config)
+  const client: Client = await Client.create(config)
   if (client === undefined) throw new Error('Client could not be constructed')
 
   return client
@@ -22,7 +23,7 @@ export async function pushBuildInformation(
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
-  let branch = parameters.branch
+  let branch: string = parameters.branch || ''
   if (branch === undefined || branch === '') {
     // if we don't get a branch passed in, use branch from GitHub context
     branch = context.ref
@@ -31,7 +32,20 @@ export async function pushBuildInformation(
     }
   }
 
-  const repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
+  let repoUri
+  let commits
+  if (context.eventName === 'push') {
+    const pushPayload = context.payload as PushEvent
+    repoUri = pushPayload.repository.url
+    commits = pushPayload.commits.map((commit: Commit) => {
+      return {
+        Id: commit.id,
+        Comment: commit.message
+      }
+    })
+  } else {
+    repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
+  }
 
   const build = {
     PackageId: '',
@@ -43,7 +57,8 @@ export async function pushBuildInformation(
       Branch: branch,
       VcsType: 'Git',
       VcsRoot: `${repoUri}`,
-      VcsCommitNumber: context.sha
+      VcsCommitNumber: context.sha,
+      Commits: commits
     }
   }
 
@@ -52,8 +67,8 @@ export async function pushBuildInformation(
   }
 
   try {
-    const client = await getOctopusClient(parameters)
-    const buildInfoUriTmpl = client.getLink('BuildInformation')
+    const client: Client = await getOctopusClient(parameters)
+    const buildInfoUriTmpl: string = client.getLink('BuildInformation')
 
     for (const packageId of parameters.packages) {
       info(
