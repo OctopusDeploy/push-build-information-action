@@ -1,8 +1,9 @@
 import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
-import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
 import {PushEvent, Commit} from '@octokit/webhooks-types/schema'
+import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
+import {NewOctopusPackageVersionBuildInformationResource, CommitDetail} from '@octopusdeploy/message-contracts'
 
 async function getOctopusClient(parameters: InputParameters): Promise<Client> {
   const config: ClientConfiguration = {
@@ -28,19 +29,20 @@ export async function pushBuildInformation(
     branch = branch.substring('refs/heads/'.length)
   }
 
-  const pushEvent = context.payload as PushEvent
-  const repoUri =
+  const pushEvent: PushEvent | undefined = context.payload as PushEvent
+  const repoUri: string =
     pushEvent?.repository?.url ||
     `https://github.com/${context.repo.owner}/${context.repo.repo}`
-  const commits =
+  const commits: CommitDetail[] =
     pushEvent?.commits?.map((commit: Commit) => {
       return {
         Id: commit.id,
-        Comment: commit.message
+        Comment: commit.message,
+        LinkUrl: commit.url
       }
     }) || []
 
-  const build = {
+  const build: NewOctopusPackageVersionBuildInformationResource = {
     PackageId: '',
     Version: parameters.version,
     OctopusBuildInformation: {
