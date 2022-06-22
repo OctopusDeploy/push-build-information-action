@@ -23,29 +23,22 @@ export async function pushBuildInformation(
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
-  let branch: string = parameters.branch || ''
-  if (branch === undefined || branch === '') {
-    // if we don't get a branch passed in, use branch from GitHub context
-    branch = context.ref
-    if (branch.startsWith('refs/heads/')) {
-      branch = branch.substring('refs/heads/'.length)
-    }
+  let branch: string = parameters.branch || context.ref
+  if (branch.startsWith('refs/heads/')) {
+    branch = branch.substring('refs/heads/'.length)
   }
 
-  let repoUri
-  let commits
-  if (context.eventName === 'push') {
-    const pushPayload = context.payload as PushEvent
-    repoUri = pushPayload.repository.url
-    commits = pushPayload.commits.map((commit: Commit) => {
+  const pushEvent = context.payload as PushEvent
+  const repoUri =
+    pushEvent?.repository?.url ||
+    `https://github.com/${context.repo.owner}/${context.repo.repo}`
+  const commits =
+    pushEvent?.commits?.map((commit: Commit) => {
       return {
         Id: commit.id,
         Comment: commit.message
       }
-    })
-  } else {
-    repoUri = `https://github.com/${context.repo.owner}/${context.repo.repo}`
-  }
+    }) || []
 
   const build = {
     PackageId: '',
