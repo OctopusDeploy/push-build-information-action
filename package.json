@@ -6,6 +6,7 @@
   "dependencies": {
     "@actions/core": "^1.9.0",
     "@actions/github": "^5.0.3",
+    "@octokit/webhooks-types": "^5.8.0",
     "@octopusdeploy/api-client": "^1.1.7"
   },
   "description": "GitHub Action to Push Build Information to Octopus Deploy",
