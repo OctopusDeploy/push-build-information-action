@@ -3,7 +3,10 @@ import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {PushEvent, Commit} from '@octokit/webhooks-types/schema'
 import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
-import {NewOctopusPackageVersionBuildInformationResource, CommitDetail} from '@octopusdeploy/message-contracts'
+import {
+  NewOctopusPackageVersionBuildInformationResource,
+  CommitDetail
+} from '@octopusdeploy/message-contracts'
 
 async function getOctopusClient(parameters: InputParameters): Promise<Client> {
   const config: ClientConfiguration = {
