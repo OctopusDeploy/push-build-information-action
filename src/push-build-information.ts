@@ -50,7 +50,7 @@ export async function pushBuildInformation(
     Version: parameters.version,
     OctopusBuildInformation: {
       BuildEnvironment: 'GitHub Actions',
-      BuildNumber: runId.toString(),
+      BuildNumber: context.runNumber.toString(),
       BuildUrl: `${repoUri}/actions/runs/${runId}`,
       Branch: branch,
       VcsType: 'Git',

@@ -14,6 +14,7 @@ process.env = Object.assign(process.env, {
   RUNNER_TOOL_CACHE: tmpdir.name,
   GITHUB_ACTION: '1',
   GITHUB_RUN_ID: '2',
+  GITHUB_RUN_NUMBER: '2',
   GITHUB_REPOSITORY: 'test/test',
   GITHUB_REF: 'refs/heads/main'
 })
