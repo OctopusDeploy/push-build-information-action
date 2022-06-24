@@ -23,7 +23,7 @@ async function getOctopusClient(parameters: InputParameters): Promise<Client> {
 }
 
 export async function pushBuildInformation(
-  runId: string,
+  runId: number,
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
@@ -50,7 +50,7 @@ export async function pushBuildInformation(
     Version: parameters.version,
     OctopusBuildInformation: {
       BuildEnvironment: 'GitHub Actions',
-      BuildNumber: runId.toString(),
+      BuildNumber: context.runNumber.toString(),
       BuildUrl: `${repoUri}/actions/runs/${runId}`,
       Branch: branch,
       VcsType: 'Git',

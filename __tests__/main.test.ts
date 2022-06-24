@@ -1,3 +1,4 @@
+import {context} from '@actions/github'
 import * as inputs from '../src/input-parameters'
 import * as octopus from '../src/push-build-information'
 
@@ -11,7 +12,7 @@ describe('inputs', () => {
 describe('build information', () => {
   it('successfully pushes build information', async () => {
     const inputParameters = inputs.get()
-    const runId = process.env.GITHUB_RUN_ID
+    const runId = context.runId
     if (runId === undefined) {
       throw new Error('GitHub run number is not defined')
     }
