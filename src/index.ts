@@ -1,10 +1,11 @@
 import {setFailed} from '@actions/core'
+import {context} from '@actions/github'
 import * as octopus from './push-build-information'
 import * as inputs from './input-parameters'
 
 async function run(): Promise<void> {
   try {
-    const runId = process.env.GITHUB_RUN_ID
+    const runId = context.runId
     if (runId === undefined) {
       setFailed('GitHub run number is not defined')
       return

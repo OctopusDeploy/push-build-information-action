@@ -23,7 +23,7 @@ async function getOctopusClient(parameters: InputParameters): Promise<Client> {
 }
 
 export async function pushBuildInformation(
-  runId: string,
+  runId: number,
   parameters: InputParameters
 ): Promise<void> {
   // get the branch name
