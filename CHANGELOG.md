@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.0.0...v1.0.1) (2022-06-27)
+
+
+### Bug Fixes
+
+* applied Prettier formatting ([b4b8486](https://github.com/OctopusDeploy/push-build-information-action/commit/b4b8486246491e8f21d8d40763ebbefef79ad641))
+
 ## [1.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v0.1.3...v1.0.0) (2022-06-27)
 
 
