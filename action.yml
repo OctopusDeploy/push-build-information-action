@@ -16,8 +16,6 @@ inputs:
     description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
   packages:
     description: 'A multi-line list of packages to push to Octopus Deploy.'
-  space:
-    description: 'The name or ID of a space within which this command will be executed. If omitted, the default space will be used.'
   version:
     description: 'The version of the package(s)'
 
