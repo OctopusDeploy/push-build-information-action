@@ -82,5 +82,5 @@
     "postbuild": "ncc build out/index.js -o dist",
     "test": "jest --ci --reporters=default --reporters=jest-junit"
   },
-  "version": "0.1.3"
+  "version": "1.0.0"
 }
