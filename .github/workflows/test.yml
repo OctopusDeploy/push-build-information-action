@@ -34,6 +34,10 @@ jobs:
           OCTOPUS_SERVER_BASE64_LICENSE: ${{ secrets.OCTOPUS_SERVER_BASE64_LICENSE }}
         ports:
           - 8080:8080
+    # https://github.com/dorny/test-reporter/issues/168
+    permissions:
+      statuses: write
+      checks: write
     steps:
       - uses: actions/checkout@v3
 
@@ -53,7 +57,6 @@ jobs:
           name: JEST Tests
           path: 'reports/jest-*.xml'
           reporter: jest-junit
-          token: ${{ secrets.INTEGRATIONS_FNM_BOT_TOKEN }}
 
       - name: Add server url to CORS
         run: |
