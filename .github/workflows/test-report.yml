@@ -6,6 +6,10 @@ on:
       - completed
 jobs:
   report:
+    # https://github.com/dorny/test-reporter/issues/168
+    permissions:
+      statuses: write
+      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Test Report
