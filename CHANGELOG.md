@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v0.1.3...v1.0.0) (2022-06-27)
+
+
+### Features
+
+* Include commits in the build information pushed to Octopus ([#52](https://github.com/OctopusDeploy/push-build-information-action/issues/52)) ([53335b8](https://github.com/OctopusDeploy/push-build-information-action/commit/53335b870a0f27f149af060dd38e51dab3bba00d))
+* Use the build information repository to push to Octopus ([#56](https://github.com/OctopusDeploy/push-build-information-action/issues/56)) ([cfab6c4](https://github.com/OctopusDeploy/push-build-information-action/commit/cfab6c4b94387aa1a0ff5843319d9e29d66bd14a))
+
+
+### Bug Fixes
+
+* update README in dist workflow ([#47](https://github.com/OctopusDeploy/push-build-information-action/issues/47)) ([ff01740](https://github.com/OctopusDeploy/push-build-information-action/commit/ff0174047c9b3773968b21235161afe0d085b0fc))
+
 ## [0.1.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v0.1.2...v0.1.3) (2022-06-20)
 
 
