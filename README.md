@@ -5,12 +5,13 @@
 This is a GitHub Action to push build information to [Octopus Deploy](https://octopus.com/).
 
 This action captures the following build information:
-  - **BuildNumber**: _The unique ID of the build that was triggered._
-  - **BuildUrl**: _The link to the build that was triggered._
-  - **Branch**: _The branch or tag name that triggered the build._
-  - **VcsRoot**: _The URL to the GitHub repository._
-  - **VcsCommitNumber**: _The commit SHA that triggered the build._
-  - **Commits**: _List of commits that was part of the build._
+
+- **BuildNumber**: _The unique ID of the build that was triggered._
+- **BuildUrl**: _The link to the build that was triggered._
+- **Branch**: _The branch or tag name that triggered the build._
+- **VcsRoot**: _The URL to the GitHub repository._
+- **VcsCommitNumber**: _The commit SHA that triggered the build._
+- **Commits**: _List of commits that was part of the build._
 
 ## Examples
 
@@ -18,9 +19,9 @@ Incorporate the following actions in your workflow to push build information to 
 
 ```yml
 env:
-  OCTOPUS_HOST: ${{ secrets.OCTOPUS_URL }}
-  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
-  OCTOPUS_SPACE: '<spaceid>'
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }} # API key used with Octopus Deploy instance
+  OCTOPUS_HOST: ${{ secrets.OCTOPUS_HOST }}       # address of Octopus Deploy instance (i.e. https://demo.octopus.app)
+  OCTOPUS_SPACE: '<spaceid>'                      # space ID to target
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙

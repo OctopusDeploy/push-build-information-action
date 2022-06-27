@@ -1,4 +1,4 @@
-import {getBooleanInput, getMultilineInput, getInput} from '@actions/core'
+import {getBooleanInput, getInput, getMultilineInput} from '@actions/core'
 import {OverwriteMode} from '@octopusdeploy/api-client'
 
 export interface InputParameters {

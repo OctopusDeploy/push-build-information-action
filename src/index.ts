@@ -1,7 +1,7 @@
 import {setFailed} from '@actions/core'
 import {context} from '@actions/github'
-import * as octopus from './push-build-information'
 import * as inputs from './input-parameters'
+import * as octopus from './push-build-information'
 
 async function run(): Promise<void> {
   try {
