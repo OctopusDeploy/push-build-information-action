@@ -21,6 +21,7 @@ Incorporate the following actions in your workflow to push build information to 
 env:
   OCTOPUS_HOST: ${{ secrets.OCTOPUS_URL }}
   OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+  OCTOPUS_SPACE: '<spaceid>'
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙
@@ -28,7 +29,6 @@ steps:
     with:
       packages: |
         '<packageId1>'
-      space: '<space>'
       version: '<versionofpackages>'
 ```
 
@@ -39,7 +39,6 @@ The following inputs are required:
 | Name       | Description                                                                | Default |
 | :--------- | :------------------------------------------------------------------------- | :-----: |
 | `packages` | A multi-line list of packages to push build information to Octopus Deploy. |         |
-| `space`    | The name or ID of a space within which this command will be executed.      |         |
 | `version`  | The version of the package(s).                                             |         |
 
 The following inputs are optional:

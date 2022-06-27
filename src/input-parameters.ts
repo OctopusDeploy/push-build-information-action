@@ -5,7 +5,6 @@ export interface InputParameters {
   debug?: boolean
   overwriteMode: string
   packages: string[]
-  space: string
   version: string
 }
 
@@ -15,7 +14,6 @@ export function get(): InputParameters {
     debug: getBooleanInput('debug'),
     overwriteMode: getInput('overwrite_mode'),
     packages: getMultilineInput('packages', {required: true}),
-    space: getInput('space', {required: true}),
     version: getInput('version', {required: true})
   }
 }
