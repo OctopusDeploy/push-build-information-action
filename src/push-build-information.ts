@@ -1,12 +1,12 @@
-import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
-import {PushEvent, Commit} from '@octokit/webhooks-types/schema'
+import {Commit, PushEvent} from '@octokit/webhooks-types/schema'
 import {BuildInformationRepository, Client} from '@octopusdeploy/api-client'
 import {
-  NewOctopusPackageVersionBuildInformationResource,
-  CommitDetail
+  CommitDetail,
+  NewOctopusPackageVersionBuildInformationResource
 } from '@octopusdeploy/message-contracts'
+import {InputParameters} from './input-parameters'
 
 export async function pushBuildInformation(
   runId: number,
