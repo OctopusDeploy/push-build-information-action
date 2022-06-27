@@ -10,8 +10,7 @@ This action captures the following build information:
   - **Branch**: _The branch or tag name that triggered the build._
   - **VcsRoot**: _The URL to the GitHub repository._
   - **VcsCommitNumber**: _The commit SHA that triggered the build._
-
-This action **does not** capture any commits since the last build.
+  - **Commits**: _List of commits that was part of the build._
 
 ## Examples
 
