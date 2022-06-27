@@ -2,25 +2,11 @@ import {InputParameters} from './input-parameters'
 import {info, setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {PushEvent, Commit} from '@octokit/webhooks-types/schema'
-import {Client, ClientConfiguration} from '@octopusdeploy/api-client'
+import {BuildInformationRepository, Client} from '@octopusdeploy/api-client'
 import {
   NewOctopusPackageVersionBuildInformationResource,
   CommitDetail
 } from '@octopusdeploy/message-contracts'
-
-async function getOctopusClient(parameters: InputParameters): Promise<Client> {
-  const config: ClientConfiguration = {
-    apiKey: process.env['OCTOPUS_API_KEY'],
-    apiUri: process.env['OCTOPUS_HOST'],
-    space: parameters.space,
-    autoConnect: true
-  }
-
-  const client: Client = await Client.create(config)
-  if (client === undefined) throw new Error('Client could not be constructed')
-
-  return client
-}
 
 export async function pushBuildInformation(
   runId: number,
@@ -65,8 +51,10 @@ export async function pushBuildInformation(
   }
 
   try {
-    const client: Client = await getOctopusClient(parameters)
-    const buildInfoUriTmpl: string = client.getLink('BuildInformation')
+    const client: Client = await Client.create()
+    if (client === undefined) throw new Error('Client could not be constructed')
+
+    const buildInfoRepo = new BuildInformationRepository(client)
 
     for (const packageId of parameters.packages) {
       info(
@@ -74,7 +62,7 @@ export async function pushBuildInformation(
       )
 
       build.PackageId = packageId
-      await client.post(buildInfoUriTmpl, build, {
+      await buildInfoRepo.create(build, {
         overwriteMode: parameters.overwriteMode
       })
 
