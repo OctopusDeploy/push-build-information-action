@@ -48,3 +48,6 @@ The following inputs are optional:
 | `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                          |                |
 | `debug`          | Logs the build information data.                                                                                                                                                  |    `false`     |
 | `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists`, `OverwriteExisting`, and `IgnoreIfExists`. | `FailIfExists` |
+## 🤝 Contributions
+
+Contributions are welcome! :heart: Please read our [Contributing Guide](.github/CONTRIBUTING.md) for information about how to get involved in this project.
