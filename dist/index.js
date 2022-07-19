@@ -61383,27 +61383,64 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(42186);
-const github_1 = __nccwpck_require__(95438);
-const inputs = __importStar(__nccwpck_require__(89519));
-const octopus = __importStar(__nccwpck_require__(43269));
+var core_1 = __nccwpck_require__(42186);
+var github_1 = __nccwpck_require__(95438);
+var inputs = __importStar(__nccwpck_require__(89519));
+var octopus = __importStar(__nccwpck_require__(43269));
 function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const runId = github_1.context.runId;
-            if (runId === undefined) {
-                (0, core_1.setFailed)('GitHub run number is not defined');
-                return;
+    return __awaiter(this, void 0, void 0, function () {
+        var runId, inputParameters, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    runId = github_1.context.runId;
+                    if (runId === undefined) {
+                        (0, core_1.setFailed)('GitHub run number is not defined');
+                        return [2];
+                    }
+                    inputParameters = inputs.get();
+                    return [4, octopus.pushBuildInformation(runId, inputParameters)];
+                case 1:
+                    _a.sent();
+                    return [3, 3];
+                case 2:
+                    e_1 = _a.sent();
+                    if (e_1 instanceof Error) {
+                        (0, core_1.setFailed)(e_1);
+                    }
+                    return [3, 3];
+                case 3: return [2];
             }
-            const inputParameters = inputs.get();
-            yield octopus.pushBuildInformation(runId, inputParameters);
-        }
-        catch (e) {
-            if (e instanceof Error) {
-                (0, core_1.setFailed)(e);
-            }
-        }
+        });
     });
 }
 run();
@@ -61418,15 +61455,15 @@ run();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.get = void 0;
-const core_1 = __nccwpck_require__(42186);
-const api_client_1 = __nccwpck_require__(80586);
+var core_1 = __nccwpck_require__(42186);
+var api_client_1 = __nccwpck_require__(80586);
 function get() {
-    const overwriteMode = api_client_1.OverwriteMode[(0, core_1.getInput)('overwrite_mode')] ||
+    var overwriteMode = api_client_1.OverwriteMode[(0, core_1.getInput)('overwrite_mode')] ||
         api_client_1.OverwriteMode.FailIfExists;
     return {
         branch: (0, core_1.getInput)('branch'),
         debug: (0, core_1.getBooleanInput)('debug'),
-        overwriteMode,
+        overwriteMode: overwriteMode,
         packages: (0, core_1.getMultilineInput)('packages', { required: true }),
         version: (0, core_1.getInput)('version', { required: true })
     };
@@ -61450,65 +61487,112 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.pushBuildInformation = void 0;
-const core_1 = __nccwpck_require__(42186);
-const github_1 = __nccwpck_require__(95438);
-const api_client_1 = __nccwpck_require__(80586);
+var core_1 = __nccwpck_require__(42186);
+var github_1 = __nccwpck_require__(95438);
+var api_client_1 = __nccwpck_require__(80586);
 function pushBuildInformation(runId, parameters) {
     var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        let branch = parameters.branch || github_1.context.ref;
-        if (branch.startsWith('refs/heads/')) {
-            branch = branch.substring('refs/heads/'.length);
-        }
-        const pushEvent = github_1.context.payload;
-        const repoUri = ((_a = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.repository) === null || _a === void 0 ? void 0 : _a.url) ||
-            `https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
-        const commits = ((_b = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.commits) === null || _b === void 0 ? void 0 : _b.map((commit) => {
-            return {
-                Id: commit.id,
-                Comment: commit.message,
-                LinkUrl: commit.url
-            };
-        })) || [];
-        const build = {
-            PackageId: '',
-            Version: parameters.version,
-            OctopusBuildInformation: {
-                BuildEnvironment: 'GitHub Actions',
-                BuildNumber: github_1.context.runNumber.toString(),
-                BuildUrl: `${repoUri}/actions/runs/${runId}`,
-                Branch: branch,
-                VcsType: 'Git',
-                VcsRoot: `${repoUri}`,
-                VcsCommitNumber: github_1.context.sha,
-                Commits: commits
+    return __awaiter(this, void 0, void 0, function () {
+        var branch, pushEvent, repoUri, commits, build, client, buildInfoRepo, _i, _c, packageId, e_1;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    branch = parameters.branch || github_1.context.ref;
+                    if (branch.startsWith('refs/heads/')) {
+                        branch = branch.substring('refs/heads/'.length);
+                    }
+                    pushEvent = github_1.context.payload;
+                    repoUri = ((_a = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.repository) === null || _a === void 0 ? void 0 : _a.url) ||
+                        "https://github.com/".concat(github_1.context.repo.owner, "/").concat(github_1.context.repo.repo);
+                    commits = ((_b = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.commits) === null || _b === void 0 ? void 0 : _b.map(function (commit) {
+                        return {
+                            Id: commit.id,
+                            Comment: commit.message,
+                            LinkUrl: commit.url
+                        };
+                    })) || [];
+                    build = {
+                        PackageId: '',
+                        Version: parameters.version,
+                        OctopusBuildInformation: {
+                            BuildEnvironment: 'GitHub Actions',
+                            BuildNumber: github_1.context.runNumber.toString(),
+                            BuildUrl: "".concat(repoUri, "/actions/runs/").concat(runId),
+                            Branch: branch,
+                            VcsType: 'Git',
+                            VcsRoot: "".concat(repoUri),
+                            VcsCommitNumber: github_1.context.sha,
+                            Commits: commits
+                        }
+                    };
+                    if (parameters.debug) {
+                        (0, core_1.info)("Build Information:\n".concat(JSON.stringify(build, null, 2)));
+                    }
+                    _d.label = 1;
+                case 1:
+                    _d.trys.push([1, 7, , 8]);
+                    return [4, api_client_1.Client.create()];
+                case 2:
+                    client = _d.sent();
+                    if (client === undefined)
+                        throw new Error('Client could not be constructed');
+                    buildInfoRepo = new api_client_1.BuildInformationRepository(client);
+                    _i = 0, _c = parameters.packages;
+                    _d.label = 3;
+                case 3:
+                    if (!(_i < _c.length)) return [3, 6];
+                    packageId = _c[_i];
+                    (0, core_1.info)("Pushing build information for package '".concat(packageId, "' version '").concat(parameters.version, "'"));
+                    build.PackageId = packageId;
+                    return [4, buildInfoRepo.create(build, {
+                            overwriteMode: parameters.overwriteMode
+                        })];
+                case 4:
+                    _d.sent();
+                    (0, core_1.info)('Successfully pushed build information to Octopus');
+                    _d.label = 5;
+                case 5:
+                    _i++;
+                    return [3, 3];
+                case 6: return [3, 8];
+                case 7:
+                    e_1 = _d.sent();
+                    if (e_1 instanceof Error) {
+                        (0, core_1.setFailed)(e_1);
+                    }
+                    throw e_1;
+                case 8: return [2];
             }
-        };
-        if (parameters.debug) {
-            (0, core_1.info)(`Build Information:\n${JSON.stringify(build, null, 2)}`);
-        }
-        try {
-            const client = yield api_client_1.Client.create();
-            if (client === undefined)
-                throw new Error('Client could not be constructed');
-            const buildInfoRepo = new api_client_1.BuildInformationRepository(client);
-            for (const packageId of parameters.packages) {
-                (0, core_1.info)(`Pushing build information for package '${packageId}' version '${parameters.version}'`);
-                build.PackageId = packageId;
-                yield buildInfoRepo.create(build, {
-                    overwriteMode: parameters.overwriteMode
-                });
-                (0, core_1.info)('Successfully pushed build information to Octopus');
-            }
-        }
-        catch (e) {
-            if (e instanceof Error) {
-                (0, core_1.setFailed)(e);
-            }
-            throw e;
-        }
+        });
     });
 }
 exports.pushBuildInformation = pushBuildInformation;
