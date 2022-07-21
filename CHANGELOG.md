@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.0.1...v1.0.2) (2022-07-21)
+
+
+### Bug Fixes
+
+* release space name support ([#90](https://github.com/OctopusDeploy/push-build-information-action/issues/90)) ([8435c9f](https://github.com/OctopusDeploy/push-build-information-action/commit/8435c9f47f5839e916baeaea0f0c2053e7548dbe))
+
 ## [1.0.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.0.0...v1.0.1) (2022-06-27)
 
 
