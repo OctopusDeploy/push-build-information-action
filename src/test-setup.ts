@@ -7,7 +7,7 @@ process.env = Object.assign(process.env, {
   INPUT_VERSION: '1.0.0',
   INPUT_PACKAGES: 'test',
   INPUT_OVERWRITE_MODE: 'OverwriteExisting',
-  INPUT_SPACE: 'Default',
+  OCTOPUS_SPACE: 'Spaces-1',
   OCTOPUS_API_KEY: process.env['OCTOPUS_TEST_APIKEY'],
   OCTOPUS_HOST: process.env['OCTOPUS_TEST_URL'],
   RUNNER_TEMP: tmpdir.name,
