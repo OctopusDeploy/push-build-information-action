@@ -61532,16 +61532,15 @@ const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const api_client_1 = __nccwpck_require__(80586);
 function pushBuildInformation(runId, parameters) {
-    var _a, _b;
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         let branch = parameters.branch || github_1.context.ref;
         if (branch.startsWith('refs/heads/')) {
             branch = branch.substring('refs/heads/'.length);
         }
         const pushEvent = github_1.context.payload;
-        const repoUri = ((_a = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.repository) === null || _a === void 0 ? void 0 : _a.url) ||
-            `https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
-        const commits = ((_b = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.commits) === null || _b === void 0 ? void 0 : _b.map((commit) => {
+        const repoUri = `https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
+        const commits = ((_a = pushEvent === null || pushEvent === void 0 ? void 0 : pushEvent.commits) === null || _a === void 0 ? void 0 : _a.map((commit) => {
             return {
                 Id: commit.id,
                 Comment: commit.message,
