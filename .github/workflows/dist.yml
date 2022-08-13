@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.INTEGRATIONS_FNM_BOT_TOKEN }}
       - name: install
         run: npm ci
       - name: build
