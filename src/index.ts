@@ -1,5 +1,5 @@
-import {setFailed} from '@actions/core'
-import {context} from '@actions/github'
+import { setFailed } from '@actions/core'
+import { context } from '@actions/github'
 import * as inputs from './input-parameters'
 import * as octopus from './push-build-information'
 

@@ -1,17 +1,11 @@
-import {info, setFailed} from '@actions/core'
-import {context} from '@actions/github'
-import {Commit, PushEvent} from '@octokit/webhooks-types/schema'
-import {BuildInformationRepository, Client} from '@octopusdeploy/api-client'
-import {
-  CommitDetail,
-  NewOctopusPackageVersionBuildInformationResource
-} from '@octopusdeploy/message-contracts'
-import {InputParameters} from './input-parameters'
+import { info, setFailed } from '@actions/core'
+import { context } from '@actions/github'
+import { Commit, PushEvent } from '@octokit/webhooks-types/schema'
+import { BuildInformationRepository, Client } from '@octopusdeploy/api-client'
+import { CommitDetail, NewOctopusPackageVersionBuildInformationResource } from '@octopusdeploy/message-contracts'
+import { InputParameters } from './input-parameters'
 
-export async function pushBuildInformation(
-  runId: number,
-  parameters: InputParameters
-): Promise<void> {
+export async function pushBuildInformation(runId: number, parameters: InputParameters): Promise<void> {
   // get the branch name
   let branch: string = parameters.branch || context.ref
   if (branch.startsWith('refs/heads/')) {
@@ -19,9 +13,7 @@ export async function pushBuildInformation(
   }
 
   const pushEvent: PushEvent | undefined = context.payload as PushEvent
-  const repoUri: string =
-    pushEvent?.repository?.url ||
-    `https://github.com/${context.repo.owner}/${context.repo.repo}`
+  const repoUri: string = pushEvent?.repository?.url || `https://github.com/${context.repo.owner}/${context.repo.repo}`
   const commits: CommitDetail[] =
     pushEvent?.commits?.map((commit: Commit) => {
       return {
@@ -57,9 +49,7 @@ export async function pushBuildInformation(
     const buildInfoRepo = new BuildInformationRepository(client)
 
     for (const packageId of parameters.packages) {
-      info(
-        `Pushing build information for package '${packageId}' version '${parameters.version}'`
-      )
+      info(`Pushing build information for package '${packageId}' version '${parameters.version}'`)
 
       build.PackageId = packageId
       await buildInfoRepo.create(build, {

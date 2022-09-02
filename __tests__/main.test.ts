@@ -1,4 +1,4 @@
-import {context} from '@actions/github'
+import { context } from '@actions/github'
 import * as inputs from '../src/input-parameters'
 import * as octopus from '../src/push-build-information'
 
