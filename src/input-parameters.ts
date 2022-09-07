@@ -1,5 +1,5 @@
-import {getBooleanInput, getInput, getMultilineInput} from '@actions/core'
-import {OverwriteMode} from '@octopusdeploy/api-client'
+import { getBooleanInput, getInput, getMultilineInput } from '@actions/core'
+import { OverwriteMode } from '@octopusdeploy/api-client'
 
 export interface InputParameters {
   branch?: string
@@ -17,7 +17,7 @@ export function get(): InputParameters {
     branch: getInput('branch'),
     debug: getBooleanInput('debug'),
     overwriteMode,
-    packages: getMultilineInput('packages', {required: true}),
-    version: getInput('version', {required: true})
+    packages: getMultilineInput('packages', { required: true }),
+    version: getInput('version', { required: true })
   }
 }

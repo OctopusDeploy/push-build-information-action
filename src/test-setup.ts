@@ -1,7 +1,7 @@
 import * as tmp from 'tmp'
 
 tmp.setGracefulCleanup()
-const tmpdir = tmp.dirSync({template: 'push-build-information-XXXXXX'})
+const tmpdir = tmp.dirSync({ template: 'push-build-information-XXXXXX' })
 process.env = Object.assign(process.env, {
   INPUT_DEBUG: true,
   INPUT_VERSION: '1.0.0',
