@@ -6,18 +6,24 @@ branding:
   icon: 'package'
 
 inputs:
-  branch:
-    description: 'The branch name, if omitted the GitHub ref will be used.'
-  debug:
-    default: false
-    description: 'Enable debug logging.'
-  overwrite_mode:
-    default: 'FailIfExists'
-    description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
+  api_key:
+    description: 'The API key used to access Octopus Deploy. An API key is required, but you may also use the OCTOPUS_API_KEY environment variable. It is strongly recommended that this value retrieved from a GitHub secret.'
+  server:
+    description: 'The instance URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). The instance URL is required, but you may also use the OCTOPUS_URL environment variable.'
+  space:
+    description: 'The name of a space within which this command will be executed. The space name is required, but you may also use the OCTOPUS_SPACE environment variable.'
   packages:
     description: 'A multi-line list of packages to push to Octopus Deploy.'
   version:
     description: 'The version of the package(s)'
+  branch:
+    description: 'The branch name, if omitted the GitHub ref will be used.'
+  overwrite_mode:
+    default: 'FailIfExists'
+    description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
+  debug:
+    default: false
+    description: 'Enable debug logging.'
 
 runs:
   using: 'node16'
