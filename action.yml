@@ -21,9 +21,6 @@ inputs:
   overwrite_mode:
     default: 'FailIfExists'
     description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
-  debug:
-    default: false
-    description: 'Enable debug logging.'
 
 runs:
   using: 'node16'

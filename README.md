@@ -20,8 +20,8 @@ Incorporate the following actions in your workflow to push build information to 
 ```yml
 env:
   OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }} # API key used with Octopus Deploy instance
-  OCTOPUS_HOST: ${{ secrets.OCTOPUS_HOST }}       # address of Octopus Deploy instance (i.e. https://demo.octopus.app)
-  OCTOPUS_SPACE: '<spacename>'                    # or you can specify a Space ID
+  OCTOPUS_URL: ${{ secrets.OCTOPUS_URL }} # address of Octopus Deploy instance (i.e. https://demo.octopus.app)
+  OCTOPUS_SPACE: '<spacename>' # or you can specify a Space ID
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙
@@ -46,8 +46,8 @@ The following inputs are optional:
 | Name             | Description                                                                                                                                                                       |    Default     |
 | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------: |
 | `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                          |                |
-| `debug`          | Logs the build information data.                                                                                                                                                  |    `false`     |
 | `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists`, `OverwriteExisting`, and `IgnoreIfExists`. | `FailIfExists` |
+
 ## 🤝 Contributions
 
 Contributions are welcome! :heart: Please read our [Contributing Guide](.github/CONTRIBUTING.md) for information about how to get involved in this project.

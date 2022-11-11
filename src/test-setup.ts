@@ -3,11 +3,10 @@ import * as tmp from 'tmp'
 tmp.setGracefulCleanup()
 const tmpdir = tmp.dirSync({ template: 'push-build-information-XXXXXX' })
 process.env = Object.assign(process.env, {
-  INPUT_DEBUG: true,
   INPUT_VERSION: '1.0.0',
   INPUT_PACKAGES: 'test',
   INPUT_OVERWRITE_MODE: 'OverwriteExisting',
-  OCTOPUS_SPACE: 'Spaces-1',
+  OCTOPUS_SPACE: 'Default',
   OCTOPUS_API_KEY: process.env['OCTOPUS_TEST_APIKEY'],
   OCTOPUS_URL: process.env['OCTOPUS_TEST_URL'],
   RUNNER_TEMP: tmpdir.name,

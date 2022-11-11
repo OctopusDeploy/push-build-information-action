@@ -1,12 +1,13 @@
+import { isDebug } from '@actions/core'
 import { context } from '@actions/github'
 import { Commit, PushEvent } from '@octokit/webhooks-types/schema'
 import {
   Client,
   CreateOctopusBuildInformationCommand,
   IOctopusBuildInformationCommit,
+  PackageIdentity,
   pushBuildInformation
 } from '@octopusdeploy/api-client'
-import { PackageIdentity } from '@octopusdeploy/api-client/dist/operations/pushBuildInformation/package-identity'
 import { InputParameters } from './input-parameters'
 
 export async function pushBuildInformationFromInputs(
@@ -51,7 +52,7 @@ export async function pushBuildInformationFromInputs(
     packages
   }
 
-  if (parameters.debug) {
+  if (isDebug()) {
     client.info(`Build Information:\n${JSON.stringify(command, null, 2)}`)
   }
 

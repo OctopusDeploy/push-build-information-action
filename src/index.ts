@@ -1,10 +1,11 @@
-import { debug, info, warning, error, setFailed } from '@actions/core'
+import { debug, info, warning, error, setFailed, isDebug } from '@actions/core'
 import { context } from '@actions/github'
 import * as inputs from './input-parameters'
 import * as octopus from './push-build-information'
 import { Client, ClientConfiguration, Logger } from '@octopusdeploy/api-client'
 
-async function run(): Promise<void> {
+// GitHub actions entrypoint
+;(async (): Promise<void> => {
   try {
     const runId = context.runId
     if (runId === undefined) {
@@ -13,7 +14,11 @@ async function run(): Promise<void> {
     }
 
     const logger: Logger = {
-      debug: message => debug(message),
+      debug: message => {
+        if (isDebug()) {
+          debug(message)
+        }
+      },
       info: message => info(message),
       warn: message => warning(message),
       error: (message, err) => {
@@ -42,6 +47,4 @@ async function run(): Promise<void> {
       setFailed(e)
     }
   }
-}
-
-run()
+})()
