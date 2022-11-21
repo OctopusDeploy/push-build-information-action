@@ -1,4 +1,4 @@
-import { getBooleanInput, getInput, getMultilineInput } from '@actions/core'
+import { getInput, getMultilineInput } from '@actions/core'
 import { OverwriteMode } from '@octopusdeploy/api-client'
 
 const EnvironmentVariables = {
