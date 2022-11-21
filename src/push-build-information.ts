@@ -26,30 +26,30 @@ export async function pushBuildInformationFromInputs(
   const commits: IOctopusBuildInformationCommit[] =
     pushEvent?.commits?.map((commit: Commit) => {
       return {
-        id: commit.id,
-        comment: commit.message
+        Id: commit.id,
+        Comment: commit.message
       }
     }) || []
 
   const packages: PackageIdentity[] = []
   for (const packageId of parameters.packages) {
     packages.push({
-      id: packageId,
-      version: parameters.version
+      Id: packageId,
+      Version: parameters.version
     })
   }
 
   const command: CreateOctopusBuildInformationCommand = {
     spaceName: parameters.space,
-    buildEnvironment: 'GitHub Actions',
-    buildNumber: context.runNumber.toString(),
-    buildUrl: `${repoUri}/actions/runs/${runId}`,
-    branch,
-    vcsType: 'Git',
-    vcsRoot: `${repoUri}`,
-    vcsCommitNumber: context.sha,
-    commits,
-    packages
+    BuildEnvironment: 'GitHub Actions',
+    BuildNumber: context.runNumber.toString(),
+    BuildUrl: `${repoUri}/actions/runs/${runId}`,
+    Branch: branch,
+    VcsType: 'Git',
+    VcsRoot: `${repoUri}`,
+    VcsCommitNumber: context.sha,
+    Commits: commits,
+    Packages: packages
   }
 
   if (isDebug()) {

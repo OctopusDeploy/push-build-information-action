@@ -19,8 +19,8 @@ Incorporate the following actions in your workflow to push build information to 
 
 ```yml
 env:
-  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }} # API key used with Octopus Deploy instance
   OCTOPUS_URL: ${{ secrets.OCTOPUS_URL }} # address of Octopus Deploy instance (i.e. https://demo.octopus.app)
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }} # API key used with Octopus Deploy instance
   OCTOPUS_SPACE: '<spacename>' # or you can specify a Space ID
 steps:
   - uses: actions/checkout@v2
@@ -32,21 +32,25 @@ steps:
       version: '<versionofpackages>'
 ```
 
+## 📥 Environment Variables
+
+| Name              | Description                                                                                                                                          |
+| :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OCTOPUS_URL`     | The base URL hosting Octopus Deploy (i.e. `https://octopus.example.com`). It is strongly recommended that this value retrieved from a GitHub secret. |
+| `OCTOPUS_API_KEY` | The API key used to access Octopus Deploy. It is strongly recommended that this value retrieved from a GitHub secret.                                |
+| `OCTOPUS_SPACE`   | The Name of a space within which this command will be executed.                                                                                      |
+
 ## 📥 Inputs
 
-The following inputs are required:
-
-| Name       | Description                                                                | Default |
-| :--------- | :------------------------------------------------------------------------- | :-----: |
-| `packages` | A multi-line list of packages to push build information to Octopus Deploy. |         |
-| `version`  | The version of the package(s).                                             |         |
-
-The following inputs are optional:
-
-| Name             | Description                                                                                                                                                                       |    Default     |
-| :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------: |
-| `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                          |                |
-| `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists`, `OverwriteExisting`, and `IgnoreIfExists`. | `FailIfExists` |
+| Name             | Description                                                                                                                                                                                                  |
+| :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages`       | A multi-line list of packages to push build information to Octopus Deploy.                                                                                                                                   |
+| `version`        | The version of the package(s).                                                                                                                                                                               |
+| `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                                                     |
+| `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists` (default), `OverwriteExisting`, and `IgnoreIfExists`.                  |
+| `server`         | The instance URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). The instance URL is required, but you may also use the OCTOPUS_URL environment variable.                                      |
+| `api_key`        | The API key used to access Octopus Deploy. An API key is required, but you may also use the OCTOPUS_API_KEY environment variable. It is strongly recommended that this value retrieved from a GitHub secret. |
+| `space`          | The name of a space within which this command will be executed. The space name is required, but you may also use the OCTOPUS_SPACE environment variable.                                                     |
 
 ## 🤝 Contributions
 

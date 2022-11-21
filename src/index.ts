@@ -33,6 +33,7 @@ import { Client, ClientConfiguration, Logger } from '@octopusdeploy/api-client'
     const inputParameters = inputs.get()
 
     const config: ClientConfiguration = {
+      userAgentApp: 'GitHubActions push-build-information-action',
       instanceURL: inputParameters.server,
       apiKey: inputParameters.apiKey,
       logging: logger
