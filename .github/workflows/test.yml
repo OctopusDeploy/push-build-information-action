@@ -73,7 +73,7 @@ jobs:
         env:
           OCTOPUS_URL: ${{ env.SERVER_URL }}
           OCTOPUS_API_KEY: ${{ env.ADMIN_API_KEY }}
-          OCTOPUS_SPACE: 'Spaces-1'
+          OCTOPUS_SPACE: 'Default'
         with:
           branch: 'test'
           packages: 'Testing'
