@@ -15,7 +15,6 @@ inputs:
   overwrite_mode:
     default: 'FailIfExists'
     description: 'Determines the action to perform with build information if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".'
-
   api_key:
     description: 'The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.'
   server:
