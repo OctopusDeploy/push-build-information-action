@@ -3,6 +3,7 @@ import { context } from '@actions/github'
 import * as inputs from './input-parameters'
 import * as octopus from './push-build-information'
 import { Client, ClientConfiguration, Logger } from '@octopusdeploy/api-client'
+import process from 'process'
 
 // GitHub actions entrypoint
 ;(async (): Promise<void> => {
@@ -30,7 +31,7 @@ import { Client, ClientConfiguration, Logger } from '@octopusdeploy/api-client'
       }
     }
 
-    const inputParameters = inputs.get()
+    const inputParameters = inputs.get(parseInt(process.env['GITHUB_RUN_ATTEMPT'] || '0') > 1)
 
     const config: ClientConfiguration = {
       userAgentApp: 'GitHubActions push-build-information-action',

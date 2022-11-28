@@ -20,10 +20,10 @@ export interface InputParameters {
   overwriteMode: OverwriteMode
 }
 
-export function get(): InputParameters {
+export function get(isRetry: boolean): InputParameters {
   const overwriteMode: OverwriteMode =
     (OverwriteMode as any)[getInput('overwrite_mode')] || // eslint-disable-line @typescript-eslint/no-explicit-any
-    OverwriteMode.FailIfExists
+    (isRetry ? OverwriteMode.IgnoreIfExists : OverwriteMode.FailIfExists)
 
   const parameters: InputParameters = {
     server: getInput('server') || process.env[EnvironmentVariables.URL] || '',

@@ -5433,7 +5433,9 @@ var BasicRepositoryV2 = /** @class */ (function () {
     };
     BasicRepositoryV2.prototype.modify = function (resource, args) {
         var _this = this;
-        return this.client.doUpdate(this.baseApiTemplate, resource, args).then(function (r) { return _this.notifySubscribersToDataModifications(r); });
+        return this.client
+            .doUpdate(this.baseApiTemplate, resource, __assign({ id: resource.Id }, args))
+            .then(function (r) { return _this.notifySubscribersToDataModifications(r); });
     };
     BasicRepositoryV2.prototype.save = function (resource) {
         if (isNewResource(resource)) {
@@ -5792,6 +5794,7 @@ __exportStar(__nccwpck_require__(20599), exports);
 __exportStar(__nccwpck_require__(65207), exports);
 __exportStar(__nccwpck_require__(9659), exports);
 __exportStar(__nccwpck_require__(76568), exports);
+__exportStar(__nccwpck_require__(19925), exports);
 __exportStar(__nccwpck_require__(30341), exports);
 __exportStar(__nccwpck_require__(40621), exports);
 
@@ -6498,6 +6501,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(44010), exports);
 __exportStar(__nccwpck_require__(76145), exports);
+__exportStar(__nccwpck_require__(82562), exports);
+__exportStar(__nccwpck_require__(10827), exports);
 __exportStar(__nccwpck_require__(72493), exports);
 
 
@@ -6589,6 +6594,51 @@ exports.runRunbook = runRunbook;
 
 /***/ }),
 
+/***/ 82562:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 10827:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RunbookRunRepository = void 0;
+var __1 = __nccwpck_require__(25024);
+var RunbookRunRepository = /** @class */ (function (_super) {
+    __extends(RunbookRunRepository, _super);
+    function RunbookRunRepository(client, spaceName) {
+        return _super.call(this, client, spaceName, "~/api/{spaceId}/runbookRuns{/id}{?skip,take,ids,projects,environments,tenants,runbooks,taskState,partialName}") || this;
+    }
+    return RunbookRunRepository;
+}(__1.SpaceScopedBasicRepositoryV2));
+exports.RunbookRunRepository = RunbookRunRepository;
+
+
+/***/ }),
+
 /***/ 72493:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -6615,6 +6665,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isResource = void 0;
+function isResource(resource) {
+    return "Id" in resource;
+}
+exports.isResource = isResource;
 
 
 /***/ }),
@@ -6987,7 +7042,8 @@ var SpaceScopedBasicRepositoryV2 = /** @class */ (function (_super) {
         return this.client.request(this.baseApiTemplate, __assign({ spaceName: this.spaceName }, args));
     };
     SpaceScopedBasicRepositoryV2.prototype.modify = function (resource, args) {
-        return _super.prototype.modify.call(this, resource, args);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return _super.prototype.modify.call(this, resource, __assign({ spaceName: this.spaceName }, args));
     };
     return SpaceScopedBasicRepositoryV2;
 }(basicRepositoryV2_1.BasicRepositoryV2));
@@ -7032,6 +7088,96 @@ exports.isSpaceScopedRequest = isSpaceScopedRequest;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isSpaceScopedResource = void 0;
+function isSpaceScopedResource(resource) {
+    return "SpaceId" in resource;
+}
+exports.isSpaceScopedResource = isSpaceScopedResource;
+
+
+/***/ }),
+
+/***/ 19925:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(47635), exports);
+__exportStar(__nccwpck_require__(20240), exports);
+__exportStar(__nccwpck_require__(91970), exports);
+
+
+/***/ }),
+
+/***/ 47635:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 20240:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 91970:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TagSetRepository = void 0;
+var __1 = __nccwpck_require__(25024);
+var TagSetRepository = /** @class */ (function (_super) {
+    __extends(TagSetRepository, _super);
+    function TagSetRepository(client, spaceName) {
+        return _super.call(this, client, spaceName, "~/api/{spaceId}/tagsets{/id}{?skip,take,ids,partialName}") || this;
+    }
+    TagSetRepository.prototype.sort = function (ids) {
+        return this.client.doUpdate("~/api/{spaceId}/tagsets/sortorder", ids, { spaceName: this.spaceName });
+    };
+    return TagSetRepository;
+}(__1.SpaceScopedBasicRepositoryV2));
+exports.TagSetRepository = TagSetRepository;
 
 
 /***/ }),
@@ -7105,7 +7251,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var spaceScopedBasicRepositoryV2_1 = __nccwpck_require__(74564);
+exports.TenantRepository = void 0;
+var __1 = __nccwpck_require__(25024);
 var TenantRepository = /** @class */ (function (_super) {
     __extends(TenantRepository, _super);
     function TenantRepository(client, spaceName) {
@@ -7132,8 +7279,8 @@ var TenantRepository = /** @class */ (function (_super) {
         return this.client.request("~/api/{spaceId}/tenants/variables-missing{?tenantId,projectId,environmentId,includeDetails}", payload);
     };
     return TenantRepository;
-}(spaceScopedBasicRepositoryV2_1.SpaceScopedBasicRepositoryV2));
-exports["default"] = TenantRepository;
+}(__1.SpaceScopedBasicRepositoryV2));
+exports.TenantRepository = TenantRepository;
 
 
 /***/ }),
@@ -7285,7 +7432,6 @@ __exportStar(__nccwpck_require__(87252), exports);
 __exportStar(__nccwpck_require__(11050), exports);
 __exportStar(__nccwpck_require__(82404), exports);
 __exportStar(__nccwpck_require__(18312), exports);
-__exportStar(__nccwpck_require__(30242), exports);
 __exportStar(__nccwpck_require__(73544), exports);
 __exportStar(__nccwpck_require__(63767), exports);
 __exportStar(__nccwpck_require__(18774), exports);
@@ -7295,7 +7441,6 @@ __exportStar(__nccwpck_require__(50924), exports);
 __exportStar(__nccwpck_require__(7025), exports);
 __exportStar(__nccwpck_require__(56836), exports);
 __exportStar(__nccwpck_require__(94178), exports);
-__exportStar(__nccwpck_require__(50450), exports);
 __exportStar(__nccwpck_require__(53573), exports);
 __exportStar(__nccwpck_require__(30986), exports);
 __exportStar(__nccwpck_require__(66168), exports);
@@ -9283,9 +9428,9 @@ exports.PackageRepository = exports.OverwriteMode = void 0;
 var basicRepository_1 = __nccwpck_require__(30970);
 var OverwriteMode;
 (function (OverwriteMode) {
-    OverwriteMode[OverwriteMode["FailIfExists"] = 0] = "FailIfExists";
-    OverwriteMode[OverwriteMode["OverwriteExisting"] = 1] = "OverwriteExisting";
-    OverwriteMode[OverwriteMode["IgnoreIfExists"] = 2] = "IgnoreIfExists";
+    OverwriteMode["FailIfExists"] = "FailIfExists";
+    OverwriteMode["OverwriteExisting"] = "OverwriteExisting";
+    OverwriteMode["IgnoreIfExists"] = "IgnoreIfExists";
 })(OverwriteMode = exports.OverwriteMode || (exports.OverwriteMode = {}));
 var PackageRepository = /** @class */ (function (_super) {
     __extends(PackageRepository, _super);
@@ -10159,41 +10304,6 @@ exports.RunbookRepository = RunbookRepository;
 
 /***/ }),
 
-/***/ 30242:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RunbookRunRepository = void 0;
-var basicRepository_1 = __nccwpck_require__(30970);
-var RunbookRunRepository = /** @class */ (function (_super) {
-    __extends(RunbookRunRepository, _super);
-    function RunbookRunRepository(client) {
-        return _super.call(this, "RunbookRuns", client) || this;
-    }
-    return RunbookRunRepository;
-}(basicRepository_1.BasicRepository));
-exports.RunbookRunRepository = RunbookRunRepository;
-
-
-/***/ }),
-
 /***/ 73544:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -10560,43 +10670,6 @@ var SubscriptionRepository = /** @class */ (function (_super) {
     return SubscriptionRepository;
 }(basicRepository_1.BasicRepository));
 exports["default"] = SubscriptionRepository;
-
-
-/***/ }),
-
-/***/ 50450:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var basicRepository_1 = __nccwpck_require__(30970);
-var TagSetRepository = /** @class */ (function (_super) {
-    __extends(TagSetRepository, _super);
-    function TagSetRepository(client) {
-        return _super.call(this, "TagSets", client) || this;
-    }
-    TagSetRepository.prototype.sort = function (ids) {
-        return this.client.put(this.client.getLink("TagSetSortOrder"), ids);
-    };
-    return TagSetRepository;
-}(basicRepository_1.BasicRepository));
-exports["default"] = TagSetRepository;
 
 
 /***/ }),
@@ -11486,7 +11559,6 @@ var releasesRepository_1 = __nccwpck_require__(87252);
 var retentionDefaultConfigurationRepository_1 = __nccwpck_require__(11050);
 var runbookProcessRepository_1 = __nccwpck_require__(82404);
 var runbookRepository_1 = __nccwpck_require__(18312);
-var runbookRunRepository_1 = __nccwpck_require__(30242);
 var runbookSnapshotRepository_1 = __nccwpck_require__(73544);
 var schedulerRepository_1 = __nccwpck_require__(63767);
 var scopedUserRoleRepository_1 = __nccwpck_require__(18774);
@@ -11496,7 +11568,6 @@ var settingsRepository_1 = __importDefault(__nccwpck_require__(50924));
 var smtpConfigurationRepository_1 = __nccwpck_require__(7025);
 var spaceRepository_1 = __nccwpck_require__(56836);
 var subscriptionRepository_1 = __importDefault(__nccwpck_require__(94178));
-var tagSetRepository_1 = __importDefault(__nccwpck_require__(50450));
 var taskRepository_1 = __nccwpck_require__(53573);
 var teamMembershipRepository_1 = __importDefault(__nccwpck_require__(30986));
 var teamRepository_1 = __nccwpck_require__(66168);
@@ -11555,7 +11626,6 @@ var Repository = /** @class */ (function () {
         this.runbooks = new runbookRepository_1.RunbookRepository(client);
         this.runbookProcess = new runbookProcessRepository_1.RunbookProcessRepository(client);
         this.runbookSnapshots = new runbookSnapshotRepository_1.RunbookSnapshotRepository(client);
-        this.runbookRuns = new runbookRunRepository_1.RunbookRunRepository(client);
         this.packages = new packageRepository_1.PackageRepository(client);
         this.performanceConfiguration = new performanceConfigurationRepository_1.PerformanceConfigurationRepository(client);
         this.permissionDescriptions = new permissionDescriptionRepository_1.PermissionDescriptionRepository(client);
@@ -11575,7 +11645,6 @@ var Repository = /** @class */ (function () {
         this.smtpConfiguration = new smtpConfigurationRepository_1.SmtpConfigurationRepository(client);
         this.spaces = new spaceRepository_1.SpaceRepository(client);
         this.subscriptions = new subscriptionRepository_1.default(client);
-        this.tagSets = new tagSetRepository_1.default(client);
         this.tasks = new taskRepository_1.TaskRepository(client);
         this.teams = new teamRepository_1.TeamRepository(client);
         this.tenantVariables = new tenantVariableRepository_1.default(client);
@@ -51964,12 +52033,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const inputs = __importStar(__nccwpck_require__(89519));
 const octopus = __importStar(__nccwpck_require__(43269));
 const api_client_1 = __nccwpck_require__(80586);
+const process_1 = __importDefault(__nccwpck_require__(77282));
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const runId = github_1.context.runId;
@@ -51994,7 +52067,7 @@ const api_client_1 = __nccwpck_require__(80586);
                 }
             }
         };
-        const inputParameters = inputs.get();
+        const inputParameters = inputs.get(parseInt(process_1.default.env['GITHUB_RUN_ATTEMPT'] || '0') > 1);
         const config = {
             userAgentApp: 'GitHubActions push-build-information-action',
             instanceURL: inputParameters.server,
@@ -52030,9 +52103,9 @@ const EnvironmentVariables = {
     ApiKey: 'OCTOPUS_API_KEY',
     Space: 'OCTOPUS_SPACE'
 };
-function get() {
+function get(isRetry) {
     const overwriteMode = api_client_1.OverwriteMode[(0, core_1.getInput)('overwrite_mode')] ||
-        api_client_1.OverwriteMode.FailIfExists;
+        (isRetry ? api_client_1.OverwriteMode.IgnoreIfExists : api_client_1.OverwriteMode.FailIfExists);
     const parameters = {
         server: (0, core_1.getInput)('server') || process.env[EnvironmentVariables.URL] || '',
         apiKey: (0, core_1.getInput)('api_key') || process.env[EnvironmentVariables.ApiKey] || '',
@@ -52204,6 +52277,14 @@ module.exports = require("os");
 
 "use strict";
 module.exports = require("path");
+
+/***/ }),
+
+/***/ 77282:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("process");
 
 /***/ }),
 
