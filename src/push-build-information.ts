@@ -2,7 +2,7 @@ import { isDebug } from '@actions/core'
 import { context } from '@actions/github'
 import { Commit, PushEvent } from '@octokit/webhooks-types/schema'
 import {
-  buildInformationPush,
+  BuildInformationRepository,
   Client,
   CreateOctopusBuildInformationCommand,
   IOctopusBuildInformationCommit,
@@ -56,7 +56,8 @@ export async function pushBuildInformationFromInputs(
     client.info(`Build Information:\n${JSON.stringify(command, null, 2)}`)
   }
 
-  await buildInformationPush(client, command, parameters.overwriteMode)
+  const repository = new BuildInformationRepository(client, parameters.space)
+  await repository.push(command, parameters.overwriteMode)
 
   client.info('Successfully pushed build information to Octopus')
 }
