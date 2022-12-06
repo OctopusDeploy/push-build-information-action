@@ -1,16 +1,19 @@
 name: 'build-test'
 on:
   push:
+    branches: '**'
     paths-ignore:
       - '**/*.md'
-
   schedule:
     # Daily 5am australian/brisbane time (7pm UTC)
     - cron: '0 19 * * *'
+  workflow_dispatch:
+
 env:
   ADMIN_API_KEY: '${{ secrets.OD_IMAGE_ADMIN_API_KEY }}'
   SA_PASSWORD: '${{ secrets.DB_IMAGE_SA_PASSWORD }}'
   SERVER_URL: 'http://localhost:8080'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -50,7 +53,7 @@ jobs:
       - name: Compile and run tests
         env:
           OCTOPUS_TEST_URL: ${{ env.SERVER_URL }}
-          OCTOPUS_TEST_APIKEY: ${{ env.ADMIN_API_KEY }}
+          OCTOPUS_TEST_API_KEY: ${{ env.ADMIN_API_KEY }}
         run: npm run all
 
       - name: Test Report
@@ -64,15 +67,14 @@ jobs:
       - name: Add server url to CORS
         run: |
           curl '${{ env.SERVER_URL }}/api/configuration/webportal/values' -X 'PUT' -H 'Content-Type: application/json' -H 'X-Octopus-ApiKey: ${{ env.ADMIN_API_KEY }}' --data-binary '{"Security":{"CorsWhitelist":"http://localhost,${{ env.SERVER_URL }}","ReferrerPolicy":"no-referrer","ContentSecurityPolicyEnabled":true,"HttpStrictTransportSecurityEnabled":false,"HttpStrictTransportSecurityMaxAge":31556926,"XOptions":{"XFrameOptionAllowFrom":null,"XFrameOptions":"None"}}}' -o /dev/null -s -w "%{http_code}\n"
-      
+
       - name: Push build information to Octopus Deploy
         uses: ./
         env:
-          OCTOPUS_HOST: ${{ env.SERVER_URL }}
+          OCTOPUS_URL: ${{ env.SERVER_URL }}
           OCTOPUS_API_KEY: ${{ env.ADMIN_API_KEY }}
-          OCTOPUS_SPACE: 'Spaces-1'
+          OCTOPUS_SPACE: 'Default'
         with:
           branch: 'test'
           packages: 'Testing'
           version: '1.0.0'
-          debug: true

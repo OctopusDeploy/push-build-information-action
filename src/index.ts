@@ -1,9 +1,12 @@
-import { setFailed } from '@actions/core'
+import { debug, info, warning, error, setFailed, isDebug } from '@actions/core'
 import { context } from '@actions/github'
 import * as inputs from './input-parameters'
 import * as octopus from './push-build-information'
+import { Client, ClientConfiguration, Logger } from '@octopusdeploy/api-client'
+import process from 'process'
 
-async function run(): Promise<void> {
+// GitHub actions entrypoint
+;(async (): Promise<void> => {
   try {
     const runId = context.runId
     if (runId === undefined) {
@@ -11,13 +14,41 @@ async function run(): Promise<void> {
       return
     }
 
-    const inputParameters = inputs.get()
-    await octopus.pushBuildInformation(runId, inputParameters)
+    const logger: Logger = {
+      debug: message => {
+        if (isDebug()) {
+          debug(message)
+        }
+      },
+      info: message => info(message),
+      warn: message => warning(message),
+      error: (message, err) => {
+        if (err !== undefined) {
+          error(err.message)
+        } else {
+          error(message)
+        }
+      }
+    }
+
+    const inputParameters = inputs.get(parseInt(process.env['GITHUB_RUN_ATTEMPT'] || '0') > 1)
+
+    const config: ClientConfiguration = {
+      userAgentApp: 'GitHubActions push-build-information-action',
+      instanceURL: inputParameters.server,
+      apiKey: inputParameters.apiKey,
+      logging: logger
+    }
+
+    const client: Client = await Client.create(config)
+    if (client === undefined) throw new Error('Client could not be constructed')
+
+    await octopus.pushBuildInformationFromInputs(client, runId, inputParameters)
   } catch (e: unknown) {
     if (e instanceof Error) {
       setFailed(e)
+    } else {
+      setFailed(`Unknown error: ${e}`)
     }
   }
-}
-
-run()
+})()

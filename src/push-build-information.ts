@@ -1,67 +1,63 @@
-import { info, setFailed } from '@actions/core'
+import { isDebug } from '@actions/core'
 import { context } from '@actions/github'
 import { Commit, PushEvent } from '@octokit/webhooks-types/schema'
-import { BuildInformationRepository, Client } from '@octopusdeploy/api-client'
-import { CommitDetail, NewOctopusPackageVersionBuildInformationResource } from '@octopusdeploy/message-contracts'
+import {
+  BuildInformationRepository,
+  Client,
+  CreateOctopusBuildInformationCommand,
+  IOctopusBuildInformationCommit,
+  PackageIdentity
+} from '@octopusdeploy/api-client'
 import { InputParameters } from './input-parameters'
 
-export async function pushBuildInformation(runId: number, parameters: InputParameters): Promise<void> {
+export async function pushBuildInformationFromInputs(
+  client: Client,
+  runId: number,
+  parameters: InputParameters
+): Promise<void> {
   // get the branch name
   let branch: string = parameters.branch || context.ref
   if (branch.startsWith('refs/heads/')) {
     branch = branch.substring('refs/heads/'.length)
   }
 
-  const pushEvent: PushEvent | undefined = context.payload as PushEvent
+  const pushEvent = context.payload as PushEvent | undefined
   const repoUri: string = pushEvent?.repository?.url || `https://github.com/${context.repo.owner}/${context.repo.repo}`
-  const commits: CommitDetail[] =
+  const commits: IOctopusBuildInformationCommit[] =
     pushEvent?.commits?.map((commit: Commit) => {
       return {
         Id: commit.id,
-        Comment: commit.message,
-        LinkUrl: commit.url
+        Comment: commit.message
       }
     }) || []
 
-  const build: NewOctopusPackageVersionBuildInformationResource = {
-    PackageId: '',
-    Version: parameters.version,
-    OctopusBuildInformation: {
-      BuildEnvironment: 'GitHub Actions',
-      BuildNumber: context.runNumber.toString(),
-      BuildUrl: `${repoUri}/actions/runs/${runId}`,
-      Branch: branch,
-      VcsType: 'Git',
-      VcsRoot: `${repoUri}`,
-      VcsCommitNumber: context.sha,
-      Commits: commits
-    }
+  const packages: PackageIdentity[] = []
+  for (const packageId of parameters.packages) {
+    packages.push({
+      Id: packageId,
+      Version: parameters.version
+    })
   }
 
-  if (parameters.debug) {
-    info(`Build Information:\n${JSON.stringify(build, null, 2)}`)
+  const command: CreateOctopusBuildInformationCommand = {
+    spaceName: parameters.space,
+    BuildEnvironment: 'GitHub Actions',
+    BuildNumber: context.runNumber.toString(),
+    BuildUrl: `${repoUri}/actions/runs/${runId}`,
+    Branch: branch,
+    VcsType: 'Git',
+    VcsRoot: `${repoUri}`,
+    VcsCommitNumber: context.sha,
+    Commits: commits,
+    Packages: packages
   }
 
-  try {
-    const client: Client = await Client.create()
-    if (client === undefined) throw new Error('Client could not be constructed')
-
-    const buildInfoRepo = new BuildInformationRepository(client)
-
-    for (const packageId of parameters.packages) {
-      info(`Pushing build information for package '${packageId}' version '${parameters.version}'`)
-
-      build.PackageId = packageId
-      await buildInfoRepo.create(build, {
-        overwriteMode: parameters.overwriteMode
-      })
-
-      info('Successfully pushed build information to Octopus')
-    }
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      setFailed(e)
-    }
-    throw e
+  if (isDebug()) {
+    client.info(`Build Information:\n${JSON.stringify(command, null, 2)}`)
   }
+
+  const repository = new BuildInformationRepository(client, parameters.space)
+  await repository.push(command, parameters.overwriteMode)
+
+  client.info('Successfully pushed build information to Octopus')
 }
