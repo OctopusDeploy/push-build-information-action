@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.1.0...v3.0.0) (2022-12-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update action to use the native API client
+
+### Features
+
+* Update action to use the native API client ([936b2b9](https://github.com/OctopusDeploy/push-build-information-action/commit/936b2b9be7eab00f1e24db3a3ca2bc41218cafb4))
+
+
+### Bug Fixes
+
+* updated dependencies ([154f4c5](https://github.com/OctopusDeploy/push-build-information-action/commit/154f4c5faec7cf1337a417aa31e98b97d0df80ff))
+
+
+### Miscellaneous Chores
+
+* release 3.0.0 ([#115](https://github.com/OctopusDeploy/push-build-information-action/issues/115)) ([78cf17c](https://github.com/OctopusDeploy/push-build-information-action/commit/78cf17c3465a3b2c25840fed851d11bed3d974fd))
+
 ## [1.1.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.0.2...v1.1.0) (2022-11-04)
 
 
