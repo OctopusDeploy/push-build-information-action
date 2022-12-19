@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.0.0...v3.0.1) (2022-12-19)
+
+
+### Bug Fixes
+
+* updated dependencies ([3b54ac0](https://github.com/OctopusDeploy/push-build-information-action/commit/3b54ac054f1ca15de762ca133799648ebb6531fa))
+
 ## [3.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v1.1.0...v3.0.0) (2022-12-13)
 
 
