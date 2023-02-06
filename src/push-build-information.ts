@@ -21,7 +21,7 @@ export async function pushBuildInformationFromInputs(
     branch = branch.substring('refs/heads/'.length)
   }
 
-  const repoUri: string = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}`
+  const repoUri = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}`
   const pushEvent = context.payload as PushEvent | undefined
   const commits: IOctopusBuildInformationCommit[] =
     pushEvent?.commits?.map((commit: Commit) => {
