@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.0.2...v3.0.3) (2023-02-06)
+
+
+### Bug Fixes
+
+* Use ServerURL from github context to ensure we get the right URL ([#122](https://github.com/OctopusDeploy/push-build-information-action/issues/122)) ([bdfc1ec](https://github.com/OctopusDeploy/push-build-information-action/commit/bdfc1ece8e405d588844c6ca0a2808b2c810297f))
+
 ## [3.0.2](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.0.1...v3.0.2) (2023-01-31)
 
 
