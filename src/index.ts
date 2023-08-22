@@ -37,6 +37,7 @@ import process from 'process'
       userAgentApp: 'GitHubActions (build-information;push;v3)',
       instanceURL: inputParameters.server,
       apiKey: inputParameters.apiKey,
+      accessToken: inputParameters.accessToken,
       logging: logger
     }
 
