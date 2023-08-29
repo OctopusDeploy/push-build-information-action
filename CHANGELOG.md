@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.0.3...v3.1.0) (2023-08-29)
+
+
+### Features
+
+* Adds support for authenticating with access token ([#124](https://github.com/OctopusDeploy/push-build-information-action/issues/124)) ([debee8b](https://github.com/OctopusDeploy/push-build-information-action/commit/debee8b635c50a4bf1683fe45bc4e755b2d0a824))
+
 ## [3.0.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.0.2...v3.0.3) (2023-02-06)
 
 
