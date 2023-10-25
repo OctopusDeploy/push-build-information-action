@@ -12,6 +12,7 @@ This action captures the following build information:
 - **VcsRoot**: _The URL to the GitHub repository._
 - **VcsCommitNumber**: _The commit SHA that triggered the build._
 - **Commits**: _List of commits that was part of the build._
+  - **Please note:** Commits will only be included when a workflow is triggered by a `push` event.
 
 ## Examples
 
