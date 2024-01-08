@@ -12,7 +12,7 @@
   "description": "GitHub Action to Push Build Information to Octopus Deploy",
   "devDependencies": {
     "@types/jest": "29.5.11",
-    "@types/node": "20.10.6",
+    "@types/node": "20.10.7",
     "@types/tmp": "0.2.6",
     "@typescript-eslint/parser": "5.62.0",
     "@vercel/ncc": "0.36.1",
