@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.0...v3.2.1) (2024-02-04)
+
+
+### Bug Fixes
+
+* **deps:** pin dependencies ([bfd89c8](https://github.com/OctopusDeploy/push-build-information-action/commit/bfd89c8e43ec54be2210d594a1d79c4ab719863d))
+* **deps:** update dependency @actions/core to v1.10.1 ([0205f5b](https://github.com/OctopusDeploy/push-build-information-action/commit/0205f5b01cac4b4e4337b1bd7311633637362f09))
+
 ## [3.2.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.1.0...v3.2.0) (2023-12-14)
 
 
