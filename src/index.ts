@@ -31,12 +31,6 @@ import process from 'process'
       }
     }
 
-    const i = 0
-
-    if (i > 0) {
-      throw new Error('test')
-    }
-
     const inputParameters = inputs.get(parseInt(process.env['GITHUB_RUN_ATTEMPT'] || '0') > 1)
 
     const config: ClientConfiguration = {
