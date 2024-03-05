@@ -52,6 +52,8 @@ steps:
 | `server`         | The instance URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). The instance URL is required, but you may also use the OCTOPUS_URL environment variable.                                      |
 | `api_key`        | The API key used to access Octopus Deploy. An API key is required, but you may also use the OCTOPUS_API_KEY environment variable. It is strongly recommended that this value retrieved from a GitHub secret. |
 | `space`          | The name of a space within which this command will be executed. The space name is required, but you may also use the OCTOPUS_SPACE environment variable.                                                     |
+| `base_branch`    | The base branch to compare the commits to. If omitted only the last push commit will be used.                                   |
+| `github_token`   | GitHub_Token used for API call. Used when base_branch is provided.                                                                 |
 
 ## 🤝 Contributions
 
