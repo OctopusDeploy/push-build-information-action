@@ -29,7 +29,7 @@ steps:
     uses: OctopusDeploy/push-build-information-action@v3
     with:
       packages: |
-        '<packageId1>'
+        <packageId1>
       version: '<versionofpackages>'
 ```
 
