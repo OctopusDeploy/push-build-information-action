@@ -21,6 +21,8 @@ export interface InputParameters {
   version: string
   branch?: string
   overwriteMode: OverwriteMode
+  baseBranch?: string
+  githubToken: string
 }
 
 export function get(isRetry: boolean): InputParameters {
@@ -36,7 +38,9 @@ export function get(isRetry: boolean): InputParameters {
     packages: getMultilineInput('packages', { required: true }),
     version: getInput('version', { required: true }),
     branch: getInput('branch') || undefined,
-    overwriteMode
+    overwriteMode,
+    baseBranch: getInput('base_branch') || undefined,
+    githubToken: getInput('github_token')
   }
 
   const errors: string[] = []
