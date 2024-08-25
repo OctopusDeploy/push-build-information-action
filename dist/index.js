@@ -14817,6 +14817,7 @@ var preservedUrlFields = [
   "protocol",
   "query",
   "search",
+  "hash",
 ];
 
 // Create handlers that pass events from native requests
@@ -15250,7 +15251,7 @@ RedirectableRequest.prototype._processResponse = function (response) {
      redirectUrl.protocol !== "https:" ||
      redirectUrl.host !== currentHost &&
      !isSubdomain(redirectUrl.host, currentHost)) {
-    removeMatchingHeaders(/^(?:authorization|cookie)$/i, this._options.headers);
+    removeMatchingHeaders(/^(?:(?:proxy-)?authorization|cookie)$/i, this._options.headers);
   }
 
   // Evaluate the beforeRedirect callback
@@ -38967,8 +38968,6 @@ const Range = __nccwpck_require__(9828)
 /***/ 9828:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SPACE_CHARACTERS = /\s+/g
-
 // hoisted class for cyclic dependency
 class Range {
   constructor (range, options) {
@@ -38989,7 +38988,7 @@ class Range {
       // just put it in the set and return
       this.raw = range.value
       this.set = [[range]]
-      this.formatted = undefined
+      this.format()
       return this
     }
 
@@ -39000,7 +38999,10 @@ class Range {
     // First reduce all whitespace as much as possible so we do not have to rely
     // on potentially slow regexes like \s*. This is then stored and used for
     // future error messages as well.
-    this.raw = range.trim().replace(SPACE_CHARACTERS, ' ')
+    this.raw = range
+      .trim()
+      .split(/\s+/)
+      .join(' ')
 
     // First, split on ||
     this.set = this.raw
@@ -39034,29 +39036,14 @@ class Range {
       }
     }
 
-    this.formatted = undefined
-  }
-
-  get range () {
-    if (this.formatted === undefined) {
-      this.formatted = ''
-      for (let i = 0; i < this.set.length; i++) {
-        if (i > 0) {
-          this.formatted += '||'
-        }
-        const comps = this.set[i]
-        for (let k = 0; k < comps.length; k++) {
-          if (k > 0) {
-            this.formatted += ' '
-          }
-          this.formatted += comps[k].toString().trim()
-        }
-      }
-    }
-    return this.formatted
+    this.format()
   }
 
   format () {
+    this.range = this.set
+      .map((comps) => comps.join(' ').trim())
+      .join('||')
+      .trim()
     return this.range
   }
 
@@ -39181,8 +39168,8 @@ class Range {
 
 module.exports = Range
 
-const LRU = __nccwpck_require__(5339)
-const cache = new LRU()
+const LRU = __nccwpck_require__(1196)
+const cache = new LRU({ max: 1000 })
 
 const parseOptions = __nccwpck_require__(785)
 const Comparator = __nccwpck_require__(1532)
@@ -39453,10 +39440,9 @@ const replaceGTE0 = (comp, options) => {
 // 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
 // 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
 // 1.2 - 3.4 => >=1.2.0 <3.5.0-0
-// TODO build?
 const hyphenReplace = incPr => ($0,
   from, fM, fm, fp, fpr, fb,
-  to, tM, tm, tp, tpr) => {
+  to, tM, tm, tp, tpr, tb) => {
   if (isX(fM)) {
     from = ''
   } else if (isX(fm)) {
@@ -39688,7 +39674,7 @@ class SemVer {
     do {
       const a = this.build[i]
       const b = other.build[i]
-      debug('build compare', i, a, b)
+      debug('prerelease compare', i, a, b)
       if (a === undefined && b === undefined) {
         return 0
       } else if (b === undefined) {
@@ -39930,43 +39916,35 @@ const coerce = (version, options) => {
 
   let match = null
   if (!options.rtl) {
-    match = version.match(options.includePrerelease ? re[t.COERCEFULL] : re[t.COERCE])
+    match = version.match(re[t.COERCE])
   } else {
     // Find the right-most coercible string that does not share
     // a terminus with a more left-ward coercible string.
     // Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
-    // With includePrerelease option set, '1.2.3.4-rc' wants to coerce '2.3.4-rc', not '2.3.4'
     //
     // Walk through the string checking with a /g regexp
     // Manually set the index so as to pick up overlapping matches.
     // Stop when we get a match that ends at the string end, since no
     // coercible string can be more right-ward without the same terminus.
-    const coerceRtlRegex = options.includePrerelease ? re[t.COERCERTLFULL] : re[t.COERCERTL]
     let next
-    while ((next = coerceRtlRegex.exec(version)) &&
+    while ((next = re[t.COERCERTL].exec(version)) &&
         (!match || match.index + match[0].length !== version.length)
     ) {
       if (!match ||
             next.index + next[0].length !== match.index + match[0].length) {
         match = next
       }
-      coerceRtlRegex.lastIndex = next.index + next[1].length + next[2].length
+      re[t.COERCERTL].lastIndex = next.index + next[1].length + next[2].length
     }
     // leave it in a clean state
-    coerceRtlRegex.lastIndex = -1
+    re[t.COERCERTL].lastIndex = -1
   }
 
   if (match === null) {
     return null
   }
 
-  const major = match[2]
-  const minor = match[3] || '0'
-  const patch = match[4] || '0'
-  const prerelease = options.includePrerelease && match[5] ? `-${match[5]}` : ''
-  const build = options.includePrerelease && match[6] ? `+${match[6]}` : ''
-
-  return parse(`${major}.${minor}.${patch}${prerelease}${build}`, options)
+  return parse(`${match[2]}.${match[3] || '0'}.${match[4] || '0'}`, options)
 }
 module.exports = coerce
 
@@ -40477,53 +40455,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5339:
-/***/ ((module) => {
-
-class LRUCache {
-  constructor () {
-    this.max = 1000
-    this.map = new Map()
-  }
-
-  get (key) {
-    const value = this.map.get(key)
-    if (value === undefined) {
-      return undefined
-    } else {
-      // Remove the key from the map and add it to the end
-      this.map.delete(key)
-      this.map.set(key, value)
-      return value
-    }
-  }
-
-  delete (key) {
-    return this.map.delete(key)
-  }
-
-  set (key, value) {
-    const deleted = this.delete(key)
-
-    if (!deleted && value !== undefined) {
-      // If cache is full, delete the least recently used item
-      if (this.map.size >= this.max) {
-        const firstKey = this.map.keys().next().value
-        this.delete(firstKey)
-      }
-
-      this.map.set(key, value)
-    }
-
-    return this
-  }
-}
-
-module.exports = LRUCache
-
-
-/***/ }),
-
 /***/ 785:
 /***/ ((module) => {
 
@@ -40705,17 +40636,12 @@ createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`)
 
 // Coercion.
 // Extract anything that could conceivably be a part of a valid semver
-createToken('COERCEPLAIN', `${'(^|[^\\d])' +
+createToken('COERCE', `${'(^|[^\\d])' +
               '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
               `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?`)
-createToken('COERCE', `${src[t.COERCEPLAIN]}(?:$|[^\\d])`)
-createToken('COERCEFULL', src[t.COERCEPLAIN] +
-              `(?:${src[t.PRERELEASE]})?` +
-              `(?:${src[t.BUILD]})?` +
+              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
               `(?:$|[^\\d])`)
 createToken('COERCERTL', src[t.COERCE], true)
-createToken('COERCERTLFULL', src[t.COERCEFULL], true)
 
 // Tilde ranges.
 // Meaning is "reasonably at or greater than"
@@ -40766,6 +40692,798 @@ createToken('STAR', '(<|>)?=?\\s*\\*')
 // >=0.0.0 is like a star
 createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$')
 createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$')
+
+
+/***/ }),
+
+/***/ 1196:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+// A linked list to keep track of recently-used-ness
+const Yallist = __nccwpck_require__(220)
+
+const MAX = Symbol('max')
+const LENGTH = Symbol('length')
+const LENGTH_CALCULATOR = Symbol('lengthCalculator')
+const ALLOW_STALE = Symbol('allowStale')
+const MAX_AGE = Symbol('maxAge')
+const DISPOSE = Symbol('dispose')
+const NO_DISPOSE_ON_SET = Symbol('noDisposeOnSet')
+const LRU_LIST = Symbol('lruList')
+const CACHE = Symbol('cache')
+const UPDATE_AGE_ON_GET = Symbol('updateAgeOnGet')
+
+const naiveLength = () => 1
+
+// lruList is a yallist where the head is the youngest
+// item, and the tail is the oldest.  the list contains the Hit
+// objects as the entries.
+// Each Hit object has a reference to its Yallist.Node.  This
+// never changes.
+//
+// cache is a Map (or PseudoMap) that matches the keys to
+// the Yallist.Node object.
+class LRUCache {
+  constructor (options) {
+    if (typeof options === 'number')
+      options = { max: options }
+
+    if (!options)
+      options = {}
+
+    if (options.max && (typeof options.max !== 'number' || options.max < 0))
+      throw new TypeError('max must be a non-negative number')
+    // Kind of weird to have a default max of Infinity, but oh well.
+    const max = this[MAX] = options.max || Infinity
+
+    const lc = options.length || naiveLength
+    this[LENGTH_CALCULATOR] = (typeof lc !== 'function') ? naiveLength : lc
+    this[ALLOW_STALE] = options.stale || false
+    if (options.maxAge && typeof options.maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+    this[MAX_AGE] = options.maxAge || 0
+    this[DISPOSE] = options.dispose
+    this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false
+    this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false
+    this.reset()
+  }
+
+  // resize the cache when the max changes.
+  set max (mL) {
+    if (typeof mL !== 'number' || mL < 0)
+      throw new TypeError('max must be a non-negative number')
+
+    this[MAX] = mL || Infinity
+    trim(this)
+  }
+  get max () {
+    return this[MAX]
+  }
+
+  set allowStale (allowStale) {
+    this[ALLOW_STALE] = !!allowStale
+  }
+  get allowStale () {
+    return this[ALLOW_STALE]
+  }
+
+  set maxAge (mA) {
+    if (typeof mA !== 'number')
+      throw new TypeError('maxAge must be a non-negative number')
+
+    this[MAX_AGE] = mA
+    trim(this)
+  }
+  get maxAge () {
+    return this[MAX_AGE]
+  }
+
+  // resize the cache when the lengthCalculator changes.
+  set lengthCalculator (lC) {
+    if (typeof lC !== 'function')
+      lC = naiveLength
+
+    if (lC !== this[LENGTH_CALCULATOR]) {
+      this[LENGTH_CALCULATOR] = lC
+      this[LENGTH] = 0
+      this[LRU_LIST].forEach(hit => {
+        hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key)
+        this[LENGTH] += hit.length
+      })
+    }
+    trim(this)
+  }
+  get lengthCalculator () { return this[LENGTH_CALCULATOR] }
+
+  get length () { return this[LENGTH] }
+  get itemCount () { return this[LRU_LIST].length }
+
+  rforEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].tail; walker !== null;) {
+      const prev = walker.prev
+      forEachStep(this, fn, walker, thisp)
+      walker = prev
+    }
+  }
+
+  forEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].head; walker !== null;) {
+      const next = walker.next
+      forEachStep(this, fn, walker, thisp)
+      walker = next
+    }
+  }
+
+  keys () {
+    return this[LRU_LIST].toArray().map(k => k.key)
+  }
+
+  values () {
+    return this[LRU_LIST].toArray().map(k => k.value)
+  }
+
+  reset () {
+    if (this[DISPOSE] &&
+        this[LRU_LIST] &&
+        this[LRU_LIST].length) {
+      this[LRU_LIST].forEach(hit => this[DISPOSE](hit.key, hit.value))
+    }
+
+    this[CACHE] = new Map() // hash of items by key
+    this[LRU_LIST] = new Yallist() // list of items in order of use recency
+    this[LENGTH] = 0 // length of items in the list
+  }
+
+  dump () {
+    return this[LRU_LIST].map(hit =>
+      isStale(this, hit) ? false : {
+        k: hit.key,
+        v: hit.value,
+        e: hit.now + (hit.maxAge || 0)
+      }).toArray().filter(h => h)
+  }
+
+  dumpLru () {
+    return this[LRU_LIST]
+  }
+
+  set (key, value, maxAge) {
+    maxAge = maxAge || this[MAX_AGE]
+
+    if (maxAge && typeof maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+
+    const now = maxAge ? Date.now() : 0
+    const len = this[LENGTH_CALCULATOR](value, key)
+
+    if (this[CACHE].has(key)) {
+      if (len > this[MAX]) {
+        del(this, this[CACHE].get(key))
+        return false
+      }
+
+      const node = this[CACHE].get(key)
+      const item = node.value
+
+      // dispose of the old one before overwriting
+      // split out into 2 ifs for better coverage tracking
+      if (this[DISPOSE]) {
+        if (!this[NO_DISPOSE_ON_SET])
+          this[DISPOSE](key, item.value)
+      }
+
+      item.now = now
+      item.maxAge = maxAge
+      item.value = value
+      this[LENGTH] += len - item.length
+      item.length = len
+      this.get(key)
+      trim(this)
+      return true
+    }
+
+    const hit = new Entry(key, value, len, now, maxAge)
+
+    // oversized objects fall out of cache automatically.
+    if (hit.length > this[MAX]) {
+      if (this[DISPOSE])
+        this[DISPOSE](key, value)
+
+      return false
+    }
+
+    this[LENGTH] += hit.length
+    this[LRU_LIST].unshift(hit)
+    this[CACHE].set(key, this[LRU_LIST].head)
+    trim(this)
+    return true
+  }
+
+  has (key) {
+    if (!this[CACHE].has(key)) return false
+    const hit = this[CACHE].get(key).value
+    return !isStale(this, hit)
+  }
+
+  get (key) {
+    return get(this, key, true)
+  }
+
+  peek (key) {
+    return get(this, key, false)
+  }
+
+  pop () {
+    const node = this[LRU_LIST].tail
+    if (!node)
+      return null
+
+    del(this, node)
+    return node.value
+  }
+
+  del (key) {
+    del(this, this[CACHE].get(key))
+  }
+
+  load (arr) {
+    // reset the cache
+    this.reset()
+
+    const now = Date.now()
+    // A previous serialized cache has the most recent items first
+    for (let l = arr.length - 1; l >= 0; l--) {
+      const hit = arr[l]
+      const expiresAt = hit.e || 0
+      if (expiresAt === 0)
+        // the item was created without expiration in a non aged cache
+        this.set(hit.k, hit.v)
+      else {
+        const maxAge = expiresAt - now
+        // dont add already expired items
+        if (maxAge > 0) {
+          this.set(hit.k, hit.v, maxAge)
+        }
+      }
+    }
+  }
+
+  prune () {
+    this[CACHE].forEach((value, key) => get(this, key, false))
+  }
+}
+
+const get = (self, key, doUse) => {
+  const node = self[CACHE].get(key)
+  if (node) {
+    const hit = node.value
+    if (isStale(self, hit)) {
+      del(self, node)
+      if (!self[ALLOW_STALE])
+        return undefined
+    } else {
+      if (doUse) {
+        if (self[UPDATE_AGE_ON_GET])
+          node.value.now = Date.now()
+        self[LRU_LIST].unshiftNode(node)
+      }
+    }
+    return hit.value
+  }
+}
+
+const isStale = (self, hit) => {
+  if (!hit || (!hit.maxAge && !self[MAX_AGE]))
+    return false
+
+  const diff = Date.now() - hit.now
+  return hit.maxAge ? diff > hit.maxAge
+    : self[MAX_AGE] && (diff > self[MAX_AGE])
+}
+
+const trim = self => {
+  if (self[LENGTH] > self[MAX]) {
+    for (let walker = self[LRU_LIST].tail;
+      self[LENGTH] > self[MAX] && walker !== null;) {
+      // We know that we're about to delete this one, and also
+      // what the next least recently used key will be, so just
+      // go ahead and set it now.
+      const prev = walker.prev
+      del(self, walker)
+      walker = prev
+    }
+  }
+}
+
+const del = (self, node) => {
+  if (node) {
+    const hit = node.value
+    if (self[DISPOSE])
+      self[DISPOSE](hit.key, hit.value)
+
+    self[LENGTH] -= hit.length
+    self[CACHE].delete(hit.key)
+    self[LRU_LIST].removeNode(node)
+  }
+}
+
+class Entry {
+  constructor (key, value, length, now, maxAge) {
+    this.key = key
+    this.value = value
+    this.length = length
+    this.now = now
+    this.maxAge = maxAge || 0
+  }
+}
+
+const forEachStep = (self, fn, node, thisp) => {
+  let hit = node.value
+  if (isStale(self, hit)) {
+    del(self, node)
+    if (!self[ALLOW_STALE])
+      hit = undefined
+  }
+  if (hit)
+    fn.call(thisp, hit.value, hit.key, self)
+}
+
+module.exports = LRUCache
+
+
+/***/ }),
+
+/***/ 5327:
+/***/ ((module) => {
+
+"use strict";
+
+module.exports = function (Yallist) {
+  Yallist.prototype[Symbol.iterator] = function* () {
+    for (let walker = this.head; walker; walker = walker.next) {
+      yield walker.value
+    }
+  }
+}
+
+
+/***/ }),
+
+/***/ 220:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+module.exports = Yallist
+
+Yallist.Node = Node
+Yallist.create = Yallist
+
+function Yallist (list) {
+  var self = this
+  if (!(self instanceof Yallist)) {
+    self = new Yallist()
+  }
+
+  self.tail = null
+  self.head = null
+  self.length = 0
+
+  if (list && typeof list.forEach === 'function') {
+    list.forEach(function (item) {
+      self.push(item)
+    })
+  } else if (arguments.length > 0) {
+    for (var i = 0, l = arguments.length; i < l; i++) {
+      self.push(arguments[i])
+    }
+  }
+
+  return self
+}
+
+Yallist.prototype.removeNode = function (node) {
+  if (node.list !== this) {
+    throw new Error('removing node which does not belong to this list')
+  }
+
+  var next = node.next
+  var prev = node.prev
+
+  if (next) {
+    next.prev = prev
+  }
+
+  if (prev) {
+    prev.next = next
+  }
+
+  if (node === this.head) {
+    this.head = next
+  }
+  if (node === this.tail) {
+    this.tail = prev
+  }
+
+  node.list.length--
+  node.next = null
+  node.prev = null
+  node.list = null
+
+  return next
+}
+
+Yallist.prototype.unshiftNode = function (node) {
+  if (node === this.head) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var head = this.head
+  node.list = this
+  node.next = head
+  if (head) {
+    head.prev = node
+  }
+
+  this.head = node
+  if (!this.tail) {
+    this.tail = node
+  }
+  this.length++
+}
+
+Yallist.prototype.pushNode = function (node) {
+  if (node === this.tail) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var tail = this.tail
+  node.list = this
+  node.prev = tail
+  if (tail) {
+    tail.next = node
+  }
+
+  this.tail = node
+  if (!this.head) {
+    this.head = node
+  }
+  this.length++
+}
+
+Yallist.prototype.push = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    push(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.unshift = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    unshift(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.pop = function () {
+  if (!this.tail) {
+    return undefined
+  }
+
+  var res = this.tail.value
+  this.tail = this.tail.prev
+  if (this.tail) {
+    this.tail.next = null
+  } else {
+    this.head = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.shift = function () {
+  if (!this.head) {
+    return undefined
+  }
+
+  var res = this.head.value
+  this.head = this.head.next
+  if (this.head) {
+    this.head.prev = null
+  } else {
+    this.tail = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.forEach = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.head, i = 0; walker !== null; i++) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.next
+  }
+}
+
+Yallist.prototype.forEachReverse = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.tail, i = this.length - 1; walker !== null; i--) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.prev
+  }
+}
+
+Yallist.prototype.get = function (n) {
+  for (var i = 0, walker = this.head; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.next
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.getReverse = function (n) {
+  for (var i = 0, walker = this.tail; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.prev
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.map = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.head; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.next
+  }
+  return res
+}
+
+Yallist.prototype.mapReverse = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.tail; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.prev
+  }
+  return res
+}
+
+Yallist.prototype.reduce = function (fn, initial) {
+  var acc
+  var walker = this.head
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.head) {
+    walker = this.head.next
+    acc = this.head.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = 0; walker !== null; i++) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.next
+  }
+
+  return acc
+}
+
+Yallist.prototype.reduceReverse = function (fn, initial) {
+  var acc
+  var walker = this.tail
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.tail) {
+    walker = this.tail.prev
+    acc = this.tail.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = this.length - 1; walker !== null; i--) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.prev
+  }
+
+  return acc
+}
+
+Yallist.prototype.toArray = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.head; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.next
+  }
+  return arr
+}
+
+Yallist.prototype.toArrayReverse = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.tail; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.prev
+  }
+  return arr
+}
+
+Yallist.prototype.slice = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = 0, walker = this.head; walker !== null && i < from; i++) {
+    walker = walker.next
+  }
+  for (; walker !== null && i < to; i++, walker = walker.next) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.sliceReverse = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = this.length, walker = this.tail; walker !== null && i > to; i--) {
+    walker = walker.prev
+  }
+  for (; walker !== null && i > from; i--, walker = walker.prev) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
+  if (start > this.length) {
+    start = this.length - 1
+  }
+  if (start < 0) {
+    start = this.length + start;
+  }
+
+  for (var i = 0, walker = this.head; walker !== null && i < start; i++) {
+    walker = walker.next
+  }
+
+  var ret = []
+  for (var i = 0; walker && i < deleteCount; i++) {
+    ret.push(walker.value)
+    walker = this.removeNode(walker)
+  }
+  if (walker === null) {
+    walker = this.tail
+  }
+
+  if (walker !== this.head && walker !== this.tail) {
+    walker = walker.prev
+  }
+
+  for (var i = 0; i < nodes.length; i++) {
+    walker = insert(this, walker, nodes[i])
+  }
+  return ret;
+}
+
+Yallist.prototype.reverse = function () {
+  var head = this.head
+  var tail = this.tail
+  for (var walker = head; walker !== null; walker = walker.prev) {
+    var p = walker.prev
+    walker.prev = walker.next
+    walker.next = p
+  }
+  this.head = tail
+  this.tail = head
+  return this
+}
+
+function insert (self, node, value) {
+  var inserted = node === self.head ?
+    new Node(value, null, node, self) :
+    new Node(value, node, node.next, self)
+
+  if (inserted.next === null) {
+    self.tail = inserted
+  }
+  if (inserted.prev === null) {
+    self.head = inserted
+  }
+
+  self.length++
+
+  return inserted
+}
+
+function push (self, item) {
+  self.tail = new Node(item, self.tail, null, self)
+  if (!self.head) {
+    self.head = self.tail
+  }
+  self.length++
+}
+
+function unshift (self, item) {
+  self.head = new Node(item, null, self.head, self)
+  if (!self.tail) {
+    self.tail = self.head
+  }
+  self.length++
+}
+
+function Node (value, prev, next, list) {
+  if (!(this instanceof Node)) {
+    return new Node(value, prev, next, list)
+  }
+
+  this.list = list
+  this.value = value
+
+  if (prev) {
+    prev.next = this
+    this.prev = prev
+  } else {
+    this.prev = null
+  }
+
+  if (next) {
+    next.prev = this
+    this.next = next
+  } else {
+    this.next = null
+  }
+}
+
+try {
+  // add if support for Symbol.iterator is present
+  __nccwpck_require__(5327)(Yallist)
+} catch (er) {}
 
 
 /***/ }),
@@ -48908,7 +49626,7 @@ module.exports = require("zlib");
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
-// Axios v1.6.5 Copyright (c) 2024 Matt Zabriskie and contributors
+// Axios v1.7.4 Copyright (c) 2024 Matt Zabriskie and contributors
 
 
 const FormData$1 = __nccwpck_require__(4334);
@@ -48920,7 +49638,7 @@ const util = __nccwpck_require__(3837);
 const followRedirects = __nccwpck_require__(7707);
 const zlib = __nccwpck_require__(9796);
 const stream = __nccwpck_require__(2781);
-const EventEmitter = __nccwpck_require__(2361);
+const events = __nccwpck_require__(2361);
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -48932,7 +49650,6 @@ const util__default = /*#__PURE__*/_interopDefaultLegacy(util);
 const followRedirects__default = /*#__PURE__*/_interopDefaultLegacy(followRedirects);
 const zlib__default = /*#__PURE__*/_interopDefaultLegacy(zlib);
 const stream__default = /*#__PURE__*/_interopDefaultLegacy(stream);
-const EventEmitter__default = /*#__PURE__*/_interopDefaultLegacy(EventEmitter);
 
 function bind(fn, thisArg) {
   return function wrap() {
@@ -49146,6 +49863,8 @@ const isFormData = (thing) => {
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
 const isURLSearchParams = kindOfTest('URLSearchParams');
+
+const [isReadableStream, isRequest, isResponse, isHeaders] = ['ReadableStream', 'Request', 'Response', 'Headers'].map(kindOfTest);
 
 /**
  * Trim excess whitespace off the beginning and end of a string
@@ -49535,8 +50254,7 @@ const toObjectSet = (arrayOrString, delimiter) => {
 const noop = () => {};
 
 const toFiniteNumber = (value, defaultValue) => {
-  value = +value;
-  return Number.isFinite(value) ? value : defaultValue;
+  return value != null && Number.isFinite(value = +value) ? value : defaultValue;
 };
 
 const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
@@ -49606,6 +50324,36 @@ const isAsyncFn = kindOfTest('AsyncFunction');
 const isThenable = (thing) =>
   thing && (isObject(thing) || isFunction(thing)) && isFunction(thing.then) && isFunction(thing.catch);
 
+// original code
+// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
+
+const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+  if (setImmediateSupported) {
+    return setImmediate;
+  }
+
+  return postMessageSupported ? ((token, callbacks) => {
+    _global.addEventListener("message", ({source, data}) => {
+      if (source === _global && data === token) {
+        callbacks.length && callbacks.shift()();
+      }
+    }, false);
+
+    return (cb) => {
+      callbacks.push(cb);
+      _global.postMessage(token, "*");
+    }
+  })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
+})(
+  typeof setImmediate === 'function',
+  isFunction(_global.postMessage)
+);
+
+const asap = typeof queueMicrotask !== 'undefined' ?
+  queueMicrotask.bind(_global) : ( typeof process !== 'undefined' && process.nextTick || _setImmediate);
+
+// *********************
+
 const utils$1 = {
   isArray,
   isArrayBuffer,
@@ -49617,6 +50365,10 @@ const utils$1 = {
   isBoolean,
   isObject,
   isPlainObject,
+  isReadableStream,
+  isRequest,
+  isResponse,
+  isHeaders,
   isUndefined,
   isDate,
   isFile,
@@ -49657,7 +50409,9 @@ const utils$1 = {
   isSpecCompliantForm,
   toJSONObject,
   isAsyncFn,
-  isThenable
+  isThenable,
+  setImmediate: _setImmediate,
+  asap
 };
 
 /**
@@ -50206,11 +50960,14 @@ const hasStandardBrowserWebWorkerEnv = (() => {
   );
 })();
 
+const origin = hasBrowserEnv && window.location.href || 'http://localhost';
+
 const utils = /*#__PURE__*/Object.freeze({
   __proto__: null,
   hasBrowserEnv: hasBrowserEnv,
   hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
-  hasStandardBrowserEnv: hasStandardBrowserEnv
+  hasStandardBrowserEnv: hasStandardBrowserEnv,
+  origin: origin
 });
 
 const platform = {
@@ -50350,7 +51107,7 @@ const defaults = {
 
   transitional: transitionalDefaults,
 
-  adapter: ['xhr', 'http'],
+  adapter: ['xhr', 'http', 'fetch'],
 
   transformRequest: [function transformRequest(data, headers) {
     const contentType = headers.getContentType() || '';
@@ -50364,9 +51121,6 @@ const defaults = {
     const isFormData = utils$1.isFormData(data);
 
     if (isFormData) {
-      if (!hasJSONContentType) {
-        return data;
-      }
       return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
     }
 
@@ -50374,7 +51128,8 @@ const defaults = {
       utils$1.isBuffer(data) ||
       utils$1.isStream(data) ||
       utils$1.isFile(data) ||
-      utils$1.isBlob(data)
+      utils$1.isBlob(data) ||
+      utils$1.isReadableStream(data)
     ) {
       return data;
     }
@@ -50416,6 +51171,10 @@ const defaults = {
     const transitional = this.transitional || defaults.transitional;
     const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
     const JSONRequested = this.responseType === 'json';
+
+    if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
+      return data;
+    }
 
     if (data && utils$1.isString(data) && ((forcedJSONParsing && !this.responseType) || JSONRequested)) {
       const silentJSONParsing = transitional && transitional.silentJSONParsing;
@@ -50620,6 +51379,10 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if(utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
+    } else if (utils$1.isHeaders(header)) {
+      for (const [key, value] of header.entries()) {
+        setHeader(value, key, rewrite);
+      }
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -50932,7 +51695,7 @@ function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 }
 
-const VERSION = "1.6.5";
+const VERSION = "1.7.4";
 
 function parseProtocol(url) {
   const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
@@ -50987,88 +51750,6 @@ function fromDataURI(uri, asBlob, options) {
   throw new AxiosError('Unsupported protocol ' + protocol, AxiosError.ERR_NOT_SUPPORT);
 }
 
-/**
- * Throttle decorator
- * @param {Function} fn
- * @param {Number} freq
- * @return {Function}
- */
-function throttle(fn, freq) {
-  let timestamp = 0;
-  const threshold = 1000 / freq;
-  let timer = null;
-  return function throttled(force, args) {
-    const now = Date.now();
-    if (force || now - timestamp > threshold) {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-      timestamp = now;
-      return fn.apply(null, args);
-    }
-    if (!timer) {
-      timer = setTimeout(() => {
-        timer = null;
-        timestamp = Date.now();
-        return fn.apply(null, args);
-      }, threshold - (now - timestamp));
-    }
-  };
-}
-
-/**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
- */
-function speedometer(samplesCount, min) {
-  samplesCount = samplesCount || 10;
-  const bytes = new Array(samplesCount);
-  const timestamps = new Array(samplesCount);
-  let head = 0;
-  let tail = 0;
-  let firstSampleTS;
-
-  min = min !== undefined ? min : 1000;
-
-  return function push(chunkLength) {
-    const now = Date.now();
-
-    const startedAt = timestamps[tail];
-
-    if (!firstSampleTS) {
-      firstSampleTS = now;
-    }
-
-    bytes[head] = chunkLength;
-    timestamps[head] = now;
-
-    let i = tail;
-    let bytesCount = 0;
-
-    while (i !== head) {
-      bytesCount += bytes[i++];
-      i = i % samplesCount;
-    }
-
-    head = (head + 1) % samplesCount;
-
-    if (head === tail) {
-      tail = (tail + 1) % samplesCount;
-    }
-
-    if (now - firstSampleTS < min) {
-      return;
-    }
-
-    const passed = startedAt && now - startedAt;
-
-    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
-  };
-}
-
 const kInternals = Symbol('internals');
 
 class AxiosTransformStream extends stream__default["default"].Transform{
@@ -51088,12 +51769,8 @@ class AxiosTransformStream extends stream__default["default"].Transform{
       readableHighWaterMark: options.chunkSize
     });
 
-    const self = this;
-
     const internals = this[kInternals] = {
-      length: options.length,
       timeWindow: options.timeWindow,
-      ticksRate: options.ticksRate,
       chunkSize: options.chunkSize,
       maxRate: options.maxRate,
       minChunkSize: options.minChunkSize,
@@ -51105,8 +51782,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
       onReadCallback: null
     };
 
-    const _speedometer = speedometer(internals.ticksRate * options.samplesCount, internals.timeWindow);
-
     this.on('newListener', event => {
       if (event === 'progress') {
         if (!internals.isCaptured) {
@@ -51114,38 +51789,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
         }
       }
     });
-
-    let bytesNotified = 0;
-
-    internals.updateProgress = throttle(function throttledHandler() {
-      const totalBytes = internals.length;
-      const bytesTransferred = internals.bytesSeen;
-      const progressBytes = bytesTransferred - bytesNotified;
-      if (!progressBytes || self.destroyed) return;
-
-      const rate = _speedometer(progressBytes);
-
-      bytesNotified = bytesTransferred;
-
-      process.nextTick(() => {
-        self.emit('progress', {
-          'loaded': bytesTransferred,
-          'total': totalBytes,
-          'progress': totalBytes ? (bytesTransferred / totalBytes) : undefined,
-          'bytes': progressBytes,
-          'rate': rate ? rate : undefined,
-          'estimated': rate && totalBytes && bytesTransferred <= totalBytes ?
-            (totalBytes - bytesTransferred) / rate : undefined
-        });
-      });
-    }, internals.ticksRate);
-
-    const onFinish = () => {
-      internals.updateProgress(true);
-    };
-
-    this.once('end', onFinish);
-    this.once('error', onFinish);
   }
 
   _read(size) {
@@ -51159,7 +51802,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
   }
 
   _transform(chunk, encoding, callback) {
-    const self = this;
     const internals = this[kInternals];
     const maxRate = internals.maxRate;
 
@@ -51171,16 +51813,14 @@ class AxiosTransformStream extends stream__default["default"].Transform{
     const bytesThreshold = (maxRate / divider);
     const minChunkSize = internals.minChunkSize !== false ? Math.max(internals.minChunkSize, bytesThreshold * 0.01) : 0;
 
-    function pushChunk(_chunk, _callback) {
+    const pushChunk = (_chunk, _callback) => {
       const bytes = Buffer.byteLength(_chunk);
       internals.bytesSeen += bytes;
       internals.bytes += bytes;
 
-      if (internals.isCaptured) {
-        internals.updateProgress();
-      }
+      internals.isCaptured && this.emit('progress', internals.bytesSeen);
 
-      if (self.push(_chunk)) {
+      if (this.push(_chunk)) {
         process.nextTick(_callback);
       } else {
         internals.onReadCallback = () => {
@@ -51188,7 +51828,7 @@ class AxiosTransformStream extends stream__default["default"].Transform{
           process.nextTick(_callback);
         };
       }
-    }
+    };
 
     const transformChunk = (_chunk, _callback) => {
       const chunkSize = Buffer.byteLength(_chunk);
@@ -51244,11 +51884,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
         callback(null);
       }
     });
-  }
-
-  setLength(length) {
-    this[kInternals].length = +length;
-    return this;
   }
 }
 
@@ -51417,6 +52052,142 @@ const callbackify = (fn, reducer) => {
 
 const callbackify$1 = callbackify;
 
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */
+function speedometer(samplesCount, min) {
+  samplesCount = samplesCount || 10;
+  const bytes = new Array(samplesCount);
+  const timestamps = new Array(samplesCount);
+  let head = 0;
+  let tail = 0;
+  let firstSampleTS;
+
+  min = min !== undefined ? min : 1000;
+
+  return function push(chunkLength) {
+    const now = Date.now();
+
+    const startedAt = timestamps[tail];
+
+    if (!firstSampleTS) {
+      firstSampleTS = now;
+    }
+
+    bytes[head] = chunkLength;
+    timestamps[head] = now;
+
+    let i = tail;
+    let bytesCount = 0;
+
+    while (i !== head) {
+      bytesCount += bytes[i++];
+      i = i % samplesCount;
+    }
+
+    head = (head + 1) % samplesCount;
+
+    if (head === tail) {
+      tail = (tail + 1) % samplesCount;
+    }
+
+    if (now - firstSampleTS < min) {
+      return;
+    }
+
+    const passed = startedAt && now - startedAt;
+
+    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
+  };
+}
+
+/**
+ * Throttle decorator
+ * @param {Function} fn
+ * @param {Number} freq
+ * @return {Function}
+ */
+function throttle(fn, freq) {
+  let timestamp = 0;
+  let threshold = 1000 / freq;
+  let lastArgs;
+  let timer;
+
+  const invoke = (args, now = Date.now()) => {
+    timestamp = now;
+    lastArgs = null;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    fn.apply(null, args);
+  };
+
+  const throttled = (...args) => {
+    const now = Date.now();
+    const passed = now - timestamp;
+    if ( passed >= threshold) {
+      invoke(args, now);
+    } else {
+      lastArgs = args;
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = null;
+          invoke(lastArgs);
+        }, threshold - passed);
+      }
+    }
+  };
+
+  const flush = () => lastArgs && invoke(lastArgs);
+
+  return [throttled, flush];
+}
+
+const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+  let bytesNotified = 0;
+  const _speedometer = speedometer(50, 250);
+
+  return throttle(e => {
+    const loaded = e.loaded;
+    const total = e.lengthComputable ? e.total : undefined;
+    const progressBytes = loaded - bytesNotified;
+    const rate = _speedometer(progressBytes);
+    const inRange = loaded <= total;
+
+    bytesNotified = loaded;
+
+    const data = {
+      loaded,
+      total,
+      progress: total ? (loaded / total) : undefined,
+      bytes: progressBytes,
+      rate: rate ? rate : undefined,
+      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
+      event: e,
+      lengthComputable: total != null,
+      [isDownloadStream ? 'download' : 'upload']: true
+    };
+
+    listener(data);
+  }, freq);
+};
+
+const progressEventDecorator = (total, throttled) => {
+  const lengthComputable = total != null;
+
+  return [(loaded) => throttled[0]({
+    lengthComputable,
+    total,
+    loaded
+  }), throttled[1]];
+};
+
+const asyncDecorator = (fn) => (...args) => utils$1.asap(() => fn(...args));
+
 const zlibOptions = {
   flush: zlib__default["default"].constants.Z_SYNC_FLUSH,
   finishFlush: zlib__default["default"].constants.Z_SYNC_FLUSH
@@ -51437,6 +52208,14 @@ const supportedProtocols = platform.protocols.map(protocol => {
   return protocol + ':';
 });
 
+const flushOnFinish = (stream, [throttled, flush]) => {
+  stream
+    .on('end', flush)
+    .on('error', flush);
+
+  return throttled;
+};
+
 /**
  * If the proxy or config beforeRedirects functions are defined, call them with the options
  * object.
@@ -51445,12 +52224,12 @@ const supportedProtocols = platform.protocols.map(protocol => {
  *
  * @returns {Object<string, any>}
  */
-function dispatchBeforeRedirect(options) {
+function dispatchBeforeRedirect(options, responseDetails) {
   if (options.beforeRedirects.proxy) {
     options.beforeRedirects.proxy(options);
   }
   if (options.beforeRedirects.config) {
-    options.beforeRedirects.config(options);
+    options.beforeRedirects.config(options, responseDetails);
   }
 }
 
@@ -51575,7 +52354,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     }
 
     // temporary internal emitter until the AxiosRequest class will be implemented
-    const emitter = new EventEmitter__default["default"]();
+    const emitter = new events.EventEmitter();
 
     const onFinished = () => {
       if (config.cancelToken) {
@@ -51612,7 +52391,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
 
     // Parse url
     const fullPath = buildFullPath(config.baseURL, config.url);
-    const parsed = new URL(fullPath, 'http://localhost');
+    const parsed = new URL(fullPath, utils$1.hasBrowserEnv ? platform.origin : undefined);
     const protocol = parsed.protocol || supportedProtocols[0];
 
     if (protocol === 'data:') {
@@ -51670,8 +52449,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     // Only set header if it hasn't been set in config
     headers.set('User-Agent', 'axios/' + VERSION, false);
 
-    const onDownloadProgress = config.onDownloadProgress;
-    const onUploadProgress = config.onUploadProgress;
+    const {onUploadProgress, onDownloadProgress} = config;
     const maxRate = config.maxRate;
     let maxUploadRate = undefined;
     let maxDownloadRate = undefined;
@@ -51742,15 +52520,16 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
       }
 
       data = stream__default["default"].pipeline([data, new AxiosTransformStream$1({
-        length: contentLength,
         maxRate: utils$1.toFiniteNumber(maxUploadRate)
       })], utils$1.noop);
 
-      onUploadProgress && data.on('progress', progress => {
-        onUploadProgress(Object.assign(progress, {
-          upload: true
-        }));
-      });
+      onUploadProgress && data.on('progress', flushOnFinish(
+        data,
+        progressEventDecorator(
+          contentLength,
+          progressEventReducer(asyncDecorator(onUploadProgress), false, 3)
+        )
+      ));
     }
 
     // HTTP basic authentication
@@ -51849,17 +52628,18 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
 
       const responseLength = +res.headers['content-length'];
 
-      if (onDownloadProgress) {
+      if (onDownloadProgress || maxDownloadRate) {
         const transformStream = new AxiosTransformStream$1({
-          length: utils$1.toFiniteNumber(responseLength),
           maxRate: utils$1.toFiniteNumber(maxDownloadRate)
         });
 
-        onDownloadProgress && transformStream.on('progress', progress => {
-          onDownloadProgress(Object.assign(progress, {
-            download: true
-          }));
-        });
+        onDownloadProgress && transformStream.on('progress', flushOnFinish(
+          transformStream,
+          progressEventDecorator(
+            responseLength,
+            progressEventReducer(asyncDecorator(onDownloadProgress), true, 3)
+          )
+        ));
 
         streams.push(transformStream);
       }
@@ -52072,45 +52852,6 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
   });
 };
 
-const cookies = platform.hasStandardBrowserEnv ?
-
-  // Standard browser envs support document.cookie
-  {
-    write(name, value, expires, path, domain, secure) {
-      const cookie = [name + '=' + encodeURIComponent(value)];
-
-      utils$1.isNumber(expires) && cookie.push('expires=' + new Date(expires).toGMTString());
-
-      utils$1.isString(path) && cookie.push('path=' + path);
-
-      utils$1.isString(domain) && cookie.push('domain=' + domain);
-
-      secure === true && cookie.push('secure');
-
-      document.cookie = cookie.join('; ');
-    },
-
-    read(name) {
-      const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-      return (match ? decodeURIComponent(match[3]) : null);
-    },
-
-    remove(name) {
-      this.write(name, '', Date.now() - 86400000);
-    }
-  }
-
-  :
-
-  // Non-standard browser env (web workers, react-native) lack needed support.
-  {
-    write() {},
-    read() {
-      return null;
-    },
-    remove() {}
-  };
-
 const isURLSameOrigin = platform.hasStandardBrowserEnv ?
 
 // Standard browser envs have full support of the APIs needed to test
@@ -52174,80 +52915,222 @@ const isURLSameOrigin = platform.hasStandardBrowserEnv ?
     };
   })();
 
-function progressEventReducer(listener, isDownloadStream) {
-  let bytesNotified = 0;
-  const _speedometer = speedometer(50, 250);
+const cookies = platform.hasStandardBrowserEnv ?
 
-  return e => {
-    const loaded = e.loaded;
-    const total = e.lengthComputable ? e.total : undefined;
-    const progressBytes = loaded - bytesNotified;
-    const rate = _speedometer(progressBytes);
-    const inRange = loaded <= total;
+  // Standard browser envs support document.cookie
+  {
+    write(name, value, expires, path, domain, secure) {
+      const cookie = [name + '=' + encodeURIComponent(value)];
 
-    bytesNotified = loaded;
+      utils$1.isNumber(expires) && cookie.push('expires=' + new Date(expires).toGMTString());
 
-    const data = {
-      loaded,
-      total,
-      progress: total ? (loaded / total) : undefined,
-      bytes: progressBytes,
-      rate: rate ? rate : undefined,
-      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
-      event: e
-    };
+      utils$1.isString(path) && cookie.push('path=' + path);
 
-    data[isDownloadStream ? 'download' : 'upload'] = true;
+      utils$1.isString(domain) && cookie.push('domain=' + domain);
 
-    listener(data);
+      secure === true && cookie.push('secure');
+
+      document.cookie = cookie.join('; ');
+    },
+
+    read(name) {
+      const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+      return (match ? decodeURIComponent(match[3]) : null);
+    },
+
+    remove(name) {
+      this.write(name, '', Date.now() - 86400000);
+    }
+  }
+
+  :
+
+  // Non-standard browser env (web workers, react-native) lack needed support.
+  {
+    write() {},
+    read() {
+      return null;
+    },
+    remove() {}
   };
+
+const headersToObject = (thing) => thing instanceof AxiosHeaders$1 ? { ...thing } : thing;
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ *
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  const config = {};
+
+  function getMergedValue(target, source, caseless) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge.call({caseless}, target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(a, b, caseless) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(a, b, caseless);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a, caseless);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(a, b, prop) {
+    if (prop in config2) {
+      return getMergedValue(a, b);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  const mergeMap = {
+    url: valueFromConfig2,
+    method: valueFromConfig2,
+    data: valueFromConfig2,
+    baseURL: defaultToConfig2,
+    transformRequest: defaultToConfig2,
+    transformResponse: defaultToConfig2,
+    paramsSerializer: defaultToConfig2,
+    timeout: defaultToConfig2,
+    timeoutMessage: defaultToConfig2,
+    withCredentials: defaultToConfig2,
+    withXSRFToken: defaultToConfig2,
+    adapter: defaultToConfig2,
+    responseType: defaultToConfig2,
+    xsrfCookieName: defaultToConfig2,
+    xsrfHeaderName: defaultToConfig2,
+    onUploadProgress: defaultToConfig2,
+    onDownloadProgress: defaultToConfig2,
+    decompress: defaultToConfig2,
+    maxContentLength: defaultToConfig2,
+    maxBodyLength: defaultToConfig2,
+    beforeRedirect: defaultToConfig2,
+    transport: defaultToConfig2,
+    httpAgent: defaultToConfig2,
+    httpsAgent: defaultToConfig2,
+    cancelToken: defaultToConfig2,
+    socketPath: defaultToConfig2,
+    responseEncoding: defaultToConfig2,
+    validateStatus: mergeDirectKeys,
+    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
+  };
+
+  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+    const merge = mergeMap[prop] || mergeDeepProperties;
+    const configValue = merge(config1[prop], config2[prop], prop);
+    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
 }
+
+const resolveConfig = (config) => {
+  const newConfig = mergeConfig({}, config);
+
+  let {data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth} = newConfig;
+
+  newConfig.headers = headers = AxiosHeaders$1.from(headers);
+
+  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
+
+  // HTTP basic authentication
+  if (auth) {
+    headers.set('Authorization', 'Basic ' +
+      btoa((auth.username || '') + ':' + (auth.password ? unescape(encodeURIComponent(auth.password)) : ''))
+    );
+  }
+
+  let contentType;
+
+  if (utils$1.isFormData(data)) {
+    if (platform.hasStandardBrowserEnv || platform.hasStandardBrowserWebWorkerEnv) {
+      headers.setContentType(undefined); // Let the browser set it
+    } else if ((contentType = headers.getContentType()) !== false) {
+      // fix semicolon duplication issue for ReactNative FormData implementation
+      const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
+      headers.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
+    }
+  }
+
+  // Add xsrf header
+  // This is only done if running in a standard browser environment.
+  // Specifically not if we're in a web worker, or react-native.
+
+  if (platform.hasStandardBrowserEnv) {
+    withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(newConfig));
+
+    if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(newConfig.url))) {
+      // Add xsrf header
+      const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
+
+      if (xsrfValue) {
+        headers.set(xsrfHeaderName, xsrfValue);
+      }
+    }
+  }
+
+  return newConfig;
+};
 
 const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined';
 
 const xhrAdapter = isXHRAdapterSupported && function (config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
-    let requestData = config.data;
-    const requestHeaders = AxiosHeaders$1.from(config.headers).normalize();
-    let {responseType, withXSRFToken} = config;
+    const _config = resolveConfig(config);
+    let requestData = _config.data;
+    const requestHeaders = AxiosHeaders$1.from(_config.headers).normalize();
+    let {responseType, onUploadProgress, onDownloadProgress} = _config;
     let onCanceled;
+    let uploadThrottled, downloadThrottled;
+    let flushUpload, flushDownload;
+
     function done() {
-      if (config.cancelToken) {
-        config.cancelToken.unsubscribe(onCanceled);
-      }
+      flushUpload && flushUpload(); // flush events
+      flushDownload && flushDownload(); // flush events
 
-      if (config.signal) {
-        config.signal.removeEventListener('abort', onCanceled);
-      }
-    }
+      _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
 
-    let contentType;
-
-    if (utils$1.isFormData(requestData)) {
-      if (platform.hasStandardBrowserEnv || platform.hasStandardBrowserWebWorkerEnv) {
-        requestHeaders.setContentType(false); // Let the browser set it
-      } else if ((contentType = requestHeaders.getContentType()) !== false) {
-        // fix semicolon duplication issue for ReactNative FormData implementation
-        const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
-        requestHeaders.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
-      }
+      _config.signal && _config.signal.removeEventListener('abort', onCanceled);
     }
 
     let request = new XMLHttpRequest();
 
-    // HTTP basic authentication
-    if (config.auth) {
-      const username = config.auth.username || '';
-      const password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
-      requestHeaders.set('Authorization', 'Basic ' + btoa(username + ':' + password));
-    }
-
-    const fullPath = buildFullPath(config.baseURL, config.url);
-
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+    request.open(_config.method.toUpperCase(), _config.url, true);
 
     // Set the request timeout in MS
-    request.timeout = config.timeout;
+    request.timeout = _config.timeout;
 
     function onloadend() {
       if (!request) {
@@ -52327,10 +53210,10 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      let timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
-      const transitional = config.transitional || transitionalDefaults;
-      if (config.timeoutErrorMessage) {
-        timeoutErrorMessage = config.timeoutErrorMessage;
+      let timeoutErrorMessage = _config.timeout ? 'timeout of ' + _config.timeout + 'ms exceeded' : 'timeout exceeded';
+      const transitional = _config.transitional || transitionalDefaults;
+      if (_config.timeoutErrorMessage) {
+        timeoutErrorMessage = _config.timeoutErrorMessage;
       }
       reject(new AxiosError(
         timeoutErrorMessage,
@@ -52341,22 +53224,6 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
       // Clean up request
       request = null;
     };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if(platform.hasStandardBrowserEnv) {
-      withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(config));
-
-      if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(fullPath))) {
-        // Add xsrf header
-        const xsrfValue = config.xsrfHeaderName && config.xsrfCookieName && cookies.read(config.xsrfCookieName);
-
-        if (xsrfValue) {
-          requestHeaders.set(config.xsrfHeaderName, xsrfValue);
-        }
-      }
-    }
 
     // Remove Content-Type if data is undefined
     requestData === undefined && requestHeaders.setContentType(null);
@@ -52369,26 +53236,31 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
     }
 
     // Add withCredentials to request if needed
-    if (!utils$1.isUndefined(config.withCredentials)) {
-      request.withCredentials = !!config.withCredentials;
+    if (!utils$1.isUndefined(_config.withCredentials)) {
+      request.withCredentials = !!_config.withCredentials;
     }
 
     // Add responseType to request if needed
     if (responseType && responseType !== 'json') {
-      request.responseType = config.responseType;
+      request.responseType = _config.responseType;
     }
 
     // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', progressEventReducer(config.onDownloadProgress, true));
+    if (onDownloadProgress) {
+      ([downloadThrottled, flushDownload] = progressEventReducer(onDownloadProgress, true));
+      request.addEventListener('progress', downloadThrottled);
     }
 
     // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', progressEventReducer(config.onUploadProgress));
+    if (onUploadProgress && request.upload) {
+      ([uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress));
+
+      request.upload.addEventListener('progress', uploadThrottled);
+
+      request.upload.addEventListener('loadend', flushUpload);
     }
 
-    if (config.cancelToken || config.signal) {
+    if (_config.cancelToken || _config.signal) {
       // Handle cancellation
       // eslint-disable-next-line func-names
       onCanceled = cancel => {
@@ -52400,13 +53272,13 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
         request = null;
       };
 
-      config.cancelToken && config.cancelToken.subscribe(onCanceled);
-      if (config.signal) {
-        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
+      _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
+      if (_config.signal) {
+        _config.signal.aborted ? onCanceled() : _config.signal.addEventListener('abort', onCanceled);
       }
     }
 
-    const protocol = parseProtocol(fullPath);
+    const protocol = parseProtocol(_config.url);
 
     if (protocol && platform.protocols.indexOf(protocol) === -1) {
       reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
@@ -52419,9 +53291,339 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
   });
 };
 
+const composeSignals = (signals, timeout) => {
+  let controller = new AbortController();
+
+  let aborted;
+
+  const onabort = function (cancel) {
+    if (!aborted) {
+      aborted = true;
+      unsubscribe();
+      const err = cancel instanceof Error ? cancel : this.reason;
+      controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+    }
+  };
+
+  let timer = timeout && setTimeout(() => {
+    onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
+  }, timeout);
+
+  const unsubscribe = () => {
+    if (signals) {
+      timer && clearTimeout(timer);
+      timer = null;
+      signals.forEach(signal => {
+        signal &&
+        (signal.removeEventListener ? signal.removeEventListener('abort', onabort) : signal.unsubscribe(onabort));
+      });
+      signals = null;
+    }
+  };
+
+  signals.forEach((signal) => signal && signal.addEventListener && signal.addEventListener('abort', onabort));
+
+  const {signal} = controller;
+
+  signal.unsubscribe = unsubscribe;
+
+  return [signal, () => {
+    timer && clearTimeout(timer);
+    timer = null;
+  }];
+};
+
+const composeSignals$1 = composeSignals;
+
+const streamChunk = function* (chunk, chunkSize) {
+  let len = chunk.byteLength;
+
+  if (!chunkSize || len < chunkSize) {
+    yield chunk;
+    return;
+  }
+
+  let pos = 0;
+  let end;
+
+  while (pos < len) {
+    end = pos + chunkSize;
+    yield chunk.slice(pos, end);
+    pos = end;
+  }
+};
+
+const readBytes = async function* (iterable, chunkSize, encode) {
+  for await (const chunk of iterable) {
+    yield* streamChunk(ArrayBuffer.isView(chunk) ? chunk : (await encode(String(chunk))), chunkSize);
+  }
+};
+
+const trackStream = (stream, chunkSize, onProgress, onFinish, encode) => {
+  const iterator = readBytes(stream, chunkSize, encode);
+
+  let bytes = 0;
+  let done;
+  let _onFinish = (e) => {
+    if (!done) {
+      done = true;
+      onFinish && onFinish(e);
+    }
+  };
+
+  return new ReadableStream({
+    async pull(controller) {
+      try {
+        const {done, value} = await iterator.next();
+
+        if (done) {
+         _onFinish();
+          controller.close();
+          return;
+        }
+
+        let len = value.byteLength;
+        if (onProgress) {
+          let loadedBytes = bytes += len;
+          onProgress(loadedBytes);
+        }
+        controller.enqueue(new Uint8Array(value));
+      } catch (err) {
+        _onFinish(err);
+        throw err;
+      }
+    },
+    cancel(reason) {
+      _onFinish(reason);
+      return iterator.return();
+    }
+  }, {
+    highWaterMark: 2
+  })
+};
+
+const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
+const isReadableStreamSupported = isFetchSupported && typeof ReadableStream === 'function';
+
+// used only inside the fetch adapter
+const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
+    ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
+    async (str) => new Uint8Array(await new Response(str).arrayBuffer())
+);
+
+const test = (fn, ...args) => {
+  try {
+    return !!fn(...args);
+  } catch (e) {
+    return false
+  }
+};
+
+const supportsRequestStream = isReadableStreamSupported && test(() => {
+  let duplexAccessed = false;
+
+  const hasContentType = new Request(platform.origin, {
+    body: new ReadableStream(),
+    method: 'POST',
+    get duplex() {
+      duplexAccessed = true;
+      return 'half';
+    },
+  }).headers.has('Content-Type');
+
+  return duplexAccessed && !hasContentType;
+});
+
+const DEFAULT_CHUNK_SIZE = 64 * 1024;
+
+const supportsResponseStream = isReadableStreamSupported &&
+  test(() => utils$1.isReadableStream(new Response('').body));
+
+
+const resolvers = {
+  stream: supportsResponseStream && ((res) => res.body)
+};
+
+isFetchSupported && (((res) => {
+  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
+    !resolvers[type] && (resolvers[type] = utils$1.isFunction(res[type]) ? (res) => res[type]() :
+      (_, config) => {
+        throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config);
+      });
+  });
+})(new Response));
+
+const getBodyLength = async (body) => {
+  if (body == null) {
+    return 0;
+  }
+
+  if(utils$1.isBlob(body)) {
+    return body.size;
+  }
+
+  if(utils$1.isSpecCompliantForm(body)) {
+    return (await new Request(body).arrayBuffer()).byteLength;
+  }
+
+  if(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
+    return body.byteLength;
+  }
+
+  if(utils$1.isURLSearchParams(body)) {
+    body = body + '';
+  }
+
+  if(utils$1.isString(body)) {
+    return (await encodeText(body)).byteLength;
+  }
+};
+
+const resolveBodyLength = async (headers, body) => {
+  const length = utils$1.toFiniteNumber(headers.getContentLength());
+
+  return length == null ? getBodyLength(body) : length;
+};
+
+const fetchAdapter = isFetchSupported && (async (config) => {
+  let {
+    url,
+    method,
+    data,
+    signal,
+    cancelToken,
+    timeout,
+    onDownloadProgress,
+    onUploadProgress,
+    responseType,
+    headers,
+    withCredentials = 'same-origin',
+    fetchOptions
+  } = resolveConfig(config);
+
+  responseType = responseType ? (responseType + '').toLowerCase() : 'text';
+
+  let [composedSignal, stopTimeout] = (signal || cancelToken || timeout) ?
+    composeSignals$1([signal, cancelToken], timeout) : [];
+
+  let finished, request;
+
+  const onFinish = () => {
+    !finished && setTimeout(() => {
+      composedSignal && composedSignal.unsubscribe();
+    });
+
+    finished = true;
+  };
+
+  let requestContentLength;
+
+  try {
+    if (
+      onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
+      (requestContentLength = await resolveBodyLength(headers, data)) !== 0
+    ) {
+      let _request = new Request(url, {
+        method: 'POST',
+        body: data,
+        duplex: "half"
+      });
+
+      let contentTypeHeader;
+
+      if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
+        headers.setContentType(contentTypeHeader);
+      }
+
+      if (_request.body) {
+        const [onProgress, flush] = progressEventDecorator(
+          requestContentLength,
+          progressEventReducer(asyncDecorator(onUploadProgress))
+        );
+
+        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush, encodeText);
+      }
+    }
+
+    if (!utils$1.isString(withCredentials)) {
+      withCredentials = withCredentials ? 'include' : 'omit';
+    }
+
+    request = new Request(url, {
+      ...fetchOptions,
+      signal: composedSignal,
+      method: method.toUpperCase(),
+      headers: headers.normalize().toJSON(),
+      body: data,
+      duplex: "half",
+      credentials: withCredentials
+    });
+
+    let response = await fetch(request);
+
+    const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
+
+    if (supportsResponseStream && (onDownloadProgress || isStreamResponse)) {
+      const options = {};
+
+      ['status', 'statusText', 'headers'].forEach(prop => {
+        options[prop] = response[prop];
+      });
+
+      const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
+
+      const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
+        responseContentLength,
+        progressEventReducer(asyncDecorator(onDownloadProgress), true)
+      ) || [];
+
+      response = new Response(
+        trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
+          flush && flush();
+          isStreamResponse && onFinish();
+        }, encodeText),
+        options
+      );
+    }
+
+    responseType = responseType || 'text';
+
+    let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
+
+    !isStreamResponse && onFinish();
+
+    stopTimeout && stopTimeout();
+
+    return await new Promise((resolve, reject) => {
+      settle(resolve, reject, {
+        data: responseData,
+        headers: AxiosHeaders$1.from(response.headers),
+        status: response.status,
+        statusText: response.statusText,
+        config,
+        request
+      });
+    })
+  } catch (err) {
+    onFinish();
+
+    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
+      throw Object.assign(
+        new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request),
+        {
+          cause: err.cause || err
+        }
+      )
+    }
+
+    throw AxiosError.from(err, err && err.code, config, request);
+  }
+});
+
 const knownAdapters = {
   http: httpAdapter,
-  xhr: xhrAdapter
+  xhr: xhrAdapter,
+  fetch: fetchAdapter
 };
 
 utils$1.forEach(knownAdapters, (fn, value) => {
@@ -52565,108 +53767,6 @@ function dispatchRequest(config) {
   });
 }
 
-const headersToObject = (thing) => thing instanceof AxiosHeaders$1 ? thing.toJSON() : thing;
-
-/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- *
- * @returns {Object} New object resulting from merging config2 to config1
- */
-function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
-  config2 = config2 || {};
-  const config = {};
-
-  function getMergedValue(target, source, caseless) {
-    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
-      return utils$1.merge.call({caseless}, target, source);
-    } else if (utils$1.isPlainObject(source)) {
-      return utils$1.merge({}, source);
-    } else if (utils$1.isArray(source)) {
-      return source.slice();
-    }
-    return source;
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(a, b, caseless) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(a, b, caseless);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a, caseless);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function valueFromConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function defaultToConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDirectKeys(a, b, prop) {
-    if (prop in config2) {
-      return getMergedValue(a, b);
-    } else if (prop in config1) {
-      return getMergedValue(undefined, a);
-    }
-  }
-
-  const mergeMap = {
-    url: valueFromConfig2,
-    method: valueFromConfig2,
-    data: valueFromConfig2,
-    baseURL: defaultToConfig2,
-    transformRequest: defaultToConfig2,
-    transformResponse: defaultToConfig2,
-    paramsSerializer: defaultToConfig2,
-    timeout: defaultToConfig2,
-    timeoutMessage: defaultToConfig2,
-    withCredentials: defaultToConfig2,
-    withXSRFToken: defaultToConfig2,
-    adapter: defaultToConfig2,
-    responseType: defaultToConfig2,
-    xsrfCookieName: defaultToConfig2,
-    xsrfHeaderName: defaultToConfig2,
-    onUploadProgress: defaultToConfig2,
-    onDownloadProgress: defaultToConfig2,
-    decompress: defaultToConfig2,
-    maxContentLength: defaultToConfig2,
-    maxBodyLength: defaultToConfig2,
-    beforeRedirect: defaultToConfig2,
-    transport: defaultToConfig2,
-    httpAgent: defaultToConfig2,
-    httpsAgent: defaultToConfig2,
-    cancelToken: defaultToConfig2,
-    socketPath: defaultToConfig2,
-    responseEncoding: defaultToConfig2,
-    validateStatus: mergeDirectKeys,
-    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
-  };
-
-  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
-    const merge = mergeMap[prop] || mergeDeepProperties;
-    const configValue = merge(config1[prop], config2[prop], prop);
-    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
-  });
-
-  return config;
-}
-
 const validators$1 = {};
 
 // eslint-disable-next-line func-names
@@ -52780,7 +53880,34 @@ class Axios {
    *
    * @returns {Promise} The Promise to be fulfilled
    */
-  request(configOrUrl, config) {
+  async request(configOrUrl, config) {
+    try {
+      return await this._request(configOrUrl, config);
+    } catch (err) {
+      if (err instanceof Error) {
+        let dummy;
+
+        Error.captureStackTrace ? Error.captureStackTrace(dummy = {}) : (dummy = new Error());
+
+        // slice off the Error: ... line
+        const stack = dummy.stack ? dummy.stack.replace(/^.+\n/, '') : '';
+        try {
+          if (!err.stack) {
+            err.stack = stack;
+            // match without the 2 top stack lines
+          } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ''))) {
+            err.stack += '\n' + stack;
+          }
+        } catch (e) {
+          // ignore the case where "stack" is an un-writable property
+        }
+      }
+
+      throw err;
+    }
+  }
+
+  _request(configOrUrl, config) {
     /*eslint no-param-reassign:0*/
     // Allow for axios('example/url'[, config]) a la fetch API
     if (typeof configOrUrl === 'string') {
