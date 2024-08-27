@@ -74,7 +74,7 @@
   },
   "scripts": {
     "all": "npm run format && npm run build && npm test",
-    "build": "tsc",
+    "build": "tsc --newLine lf",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "prebuild": "eslint src/**/*.ts",
