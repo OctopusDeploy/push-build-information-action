@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.4](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.3...v3.2.4) (2025-03-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @actions/core to v1.11.1 ([333f865](https://github.com/OctopusDeploy/push-build-information-action/commit/333f865cbaf3864c407432efd95df632622bada4))
+* **deps:** update dependency @octopusdeploy/api-client to v3.5.2 ([1bf16ef](https://github.com/OctopusDeploy/push-build-information-action/commit/1bf16ef54c78d579d46f862f2ee9f898496f3bc9))
+
 ## [3.2.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.2...v3.2.3) (2025-02-18)
 
 
