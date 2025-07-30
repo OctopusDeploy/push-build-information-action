@@ -10,7 +10,8 @@
     "@octopusdeploy/api-client": "3.7.0"
   },
   "overrides": {
-    "form-data": "4.0.4"
+    "form-data": "4.0.4",
+    "brace-expansion": "2.0.2"
   },
   "description": "GitHub Action to Push Build Information to Octopus Deploy",
   "devDependencies": {
