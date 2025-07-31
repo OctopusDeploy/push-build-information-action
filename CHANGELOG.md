@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.6](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.5...v3.2.6) (2025-07-31)
+
+
+### Bug Fixes
+
+* deploy update form-data ([0cf2eb7](https://github.com/OctopusDeploy/push-build-information-action/commit/0cf2eb7ef388fde9dc9367c6929578b434d3caea))
+
 ## [3.2.5](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.4...v3.2.5) (2025-07-29)
 
 
