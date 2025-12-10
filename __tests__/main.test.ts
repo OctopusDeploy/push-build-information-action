@@ -13,7 +13,7 @@ const apiClientConfig: ClientConfiguration = {
 describe('inputs', () => {
   it('successfully get input parameters', async () => {
     const inputParameters = inputs.get(false)
-    expect(inputParameters != undefined)
+    expect(inputParameters !== undefined)
   }, 100000)
 })
 
