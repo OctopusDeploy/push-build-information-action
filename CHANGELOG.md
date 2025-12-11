@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.6...v4.0.0) (2025-12-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update node to node 24 ([#331](https://github.com/OctopusDeploy/push-build-information-action/issues/331))
+
+### Features
+
+* Update node to node 24 ([#331](https://github.com/OctopusDeploy/push-build-information-action/issues/331)) ([ae78b76](https://github.com/OctopusDeploy/push-build-information-action/commit/ae78b76b497a2736850c1f6ff9377839c561b968))
+
 ## [3.2.6](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.5...v3.2.6) (2025-07-31)
 
 
