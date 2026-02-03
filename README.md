@@ -26,6 +26,7 @@ env:
 steps:
   - uses: actions/checkout@v2
   - name: Push build information to Octopus Deploy 🐙
+    id: push_build_information_to_octopus_deploy
     uses: OctopusDeploy/push-build-information-action@v4
     with:
       packages: |
