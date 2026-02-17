@@ -30,7 +30,7 @@ steps:
     uses: OctopusDeploy/push-build-information-action@v4
     with:
       packages: |
-        <packageId1>
+        <packageId1> 
       version: '<versionofpackages>'
 ```
 
@@ -46,7 +46,7 @@ steps:
 
 | Name             | Description                                                                                                                                                                                                  |
 | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages`       | A multi-line list of packages to push build information to Octopus Deploy.                                                                                                                                   |
+| `packages`       | A multi-line list of packages to push build information to Octopus Deploy.  When using a container image, the id must contain the organization and image name.  i.e. octopussolutionsengineering/octopub-audit-microservice                                                                                                                                 |
 | `version`        | The version of the package(s).                                                                                                                                                                               |
 | `branch`         | The branch name, if omitted the GitHub ref will be used.                                                                                                                                                     |
 | `overwrite_mode` | Determines the action to perform with build information if it already exists in the repository. Valid input values are `FailIfExists` (default), `OverwriteExisting`, and `IgnoreIfExists`.                  |
