@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.0.0...v4.1.0) (2026-02-27)
+
+
+### Features
+
+* Add workflow to check for conventional commit format PR title  ([#335](https://github.com/OctopusDeploy/push-build-information-action/issues/335)) ([d133fad](https://github.com/OctopusDeploy/push-build-information-action/commit/d133fadbc90d75ae39ae8bc3a26b4e0c15d78e86))
+
 ## [4.0.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v3.2.6...v4.0.0) (2025-12-11)
 
 
