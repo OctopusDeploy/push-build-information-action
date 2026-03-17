@@ -4,7 +4,7 @@
     "url": "https://github.com/OctopusDeploy/push-build-information-action/issues"
   },
   "dependencies": {
-    "@actions/core": "1.11.1",
+    "@actions/core": "^3.0.0",
     "@actions/github": "5.1.1",
     "@octokit/webhooks-types": "6.10.0",
     "@octopusdeploy/api-client": "3.11.0"
@@ -22,7 +22,7 @@
     "@types/tmp": "0.2.6",
     "@typescript-eslint/eslint-plugin": "8.57.1",
     "@typescript-eslint/parser": "8.57.1",
-    "@vercel/ncc": "0.38.4",
+    "esbuild": "^0.27.4",
     "eslint": "9.39.4",
     "eslint-plugin-github": "6.0.0",
     "eslint-plugin-jest": "29.15.0",
@@ -40,6 +40,9 @@
   "jest": {
     "clearMocks": true,
     "collectCoverage": true,
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "moduleFileExtensions": [
       "js",
       "ts"
@@ -54,7 +57,16 @@
     "testRunner": "jest-circus/runner",
     "testTimeout": 10000,
     "transform": {
-      "^.+\\.ts$": "ts-jest"
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": {
+            "module": "ESNext",
+            "moduleResolution": "bundler"
+          }
+        }
+      ]
     },
     "verbose": true
   },
@@ -82,12 +94,12 @@
   },
   "scripts": {
     "all": "npm run format && npm run build && npm test",
-    "build": "tsc --newLine lf",
+    "build": "tsc --noEmit --newLine lf",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "prebuild": "eslint src/**/*.ts",
-    "postbuild": "ncc build out/index.js -o dist",
-    "test": "jest --ci --reporters=default --reporters=jest-junit"
+    "postbuild": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --ci --reporters=default --reporters=jest-junit"
   },
   "version": "4.1.0"
 }
