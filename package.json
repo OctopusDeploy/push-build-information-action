@@ -101,5 +101,5 @@
     "postbuild": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --ci --reporters=default --reporters=jest-junit"
   },
-  "version": "4.1.0"
+  "version": "4.1.1"
 }

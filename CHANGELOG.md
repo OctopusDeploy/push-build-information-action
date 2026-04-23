@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.0...v4.1.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* **deps:** Resolve dependency security alerts ([#384](https://github.com/OctopusDeploy/push-build-information-action/issues/384)) ([ec94387](https://github.com/OctopusDeploy/push-build-information-action/commit/ec943879d80c2d83b4c4182cdc5c9af9420c16ec))
+* **deps:** Update core/actions to v3 ([#370](https://github.com/OctopusDeploy/push-build-information-action/issues/370)) ([007c99e](https://github.com/OctopusDeploy/push-build-information-action/commit/007c99e76f8d649e518de3c504404ba99a915977))
+
 ## [4.1.0](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.0.0...v4.1.0) (2026-02-27)
 
 
