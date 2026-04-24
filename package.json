@@ -4,8 +4,8 @@
     "url": "https://github.com/OctopusDeploy/push-build-information-action/issues"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.1.1",
+    "@actions/core": "3.0.0",
+    "@actions/github": "9.1.1",
     "@octokit/webhooks-types": "6.10.0",
     "@octopusdeploy/api-client": "3.11.0"
   },
@@ -22,7 +22,7 @@
     "@types/tmp": "0.2.6",
     "@typescript-eslint/eslint-plugin": "8.57.1",
     "@typescript-eslint/parser": "8.57.1",
-    "esbuild": "^0.27.4",
+    "esbuild": "0.27.4",
     "eslint": "9.39.4",
     "eslint-plugin-github": "6.0.0",
     "eslint-plugin-jest": "29.15.0",
