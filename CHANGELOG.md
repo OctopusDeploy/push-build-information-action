@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.2](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.1...v4.1.2) (2026-06-08)
+
+
+### Bug Fixes
+
+* update axios to v1.17.0 ([#401](https://github.com/OctopusDeploy/push-build-information-action/issues/401)) ([8dd8031](https://github.com/OctopusDeploy/push-build-information-action/commit/8dd8031aaff93ce47d8da1d31561f419fbaaed4c))
+
 ## [4.1.1](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.0...v4.1.1) (2026-04-23)
 
 
