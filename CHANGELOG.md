@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.2...v4.1.3) (2026-06-19)
+
+
+### Bug Fixes
+
+* Update tmp and form-data ([#410](https://github.com/OctopusDeploy/push-build-information-action/issues/410)) ([3cbe6df](https://github.com/OctopusDeploy/push-build-information-action/commit/3cbe6df7fdfd4fd19a8dee23d2f64a739a12ccab))
+
 ## [4.1.2](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.1...v4.1.2) (2026-06-08)
 
 
