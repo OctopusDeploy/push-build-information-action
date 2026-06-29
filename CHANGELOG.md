@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.4](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.3...v4.1.4) (2026-06-29)
+
+
+### Bug Fixes
+
+* **deps:** bump undici from 6.25.0 to 6.27.0 ([#415](https://github.com/OctopusDeploy/push-build-information-action/issues/415)) ([889c081](https://github.com/OctopusDeploy/push-build-information-action/commit/889c08125809c0fb4cc550b88755f0fa0ec32d4f))
+
 ## [4.1.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.2...v4.1.3) (2026-06-19)
 
 
