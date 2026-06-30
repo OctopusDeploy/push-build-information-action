@@ -45,10 +45,10 @@ jobs:
       statuses: write
       checks: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.3
 
       - name: Set Node.js 24.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: 24.11.1
 
@@ -62,7 +62,7 @@ jobs:
         run: npm run all
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v1.9.1
         if: success() || failure()
         with:
           name: JEST Tests
@@ -80,7 +80,7 @@ jobs:
 
       # If index.js was different than expected, upload the expected version as an artifact
       - name: Upload dist as artifact if differences detected
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: ${{ failure() && steps.diff.conclusion == 'failure' }}
         with:
           name: dist
