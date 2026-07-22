@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.1.4](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.3...v4.1.4) (2026-07-22)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump js-yaml from 4.1.1 to 4.3.0 ([#420](https://github.com/OctopusDeploy/push-build-information-action/issues/420)) ([5c0ea16](https://github.com/OctopusDeploy/push-build-information-action/commit/5c0ea1615ad9501e773e2b6074901ee0e367e2e7))
+* **deps:** bump @octopusdeploy/api-client to 3.11.5 ([#419](https://github.com/OctopusDeploy/push-build-information-action/issues/419)) ([1946cc6](https://github.com/OctopusDeploy/push-build-information-action/commit/1946cc6771fecbdce5540c46529a09918cf755a9))
+* **deps:** bump @octopusdeploy/api-client to 3.11.6 ([#423](https://github.com/OctopusDeploy/push-build-information-action/issues/423)) ([c87179d](https://github.com/OctopusDeploy/push-build-information-action/commit/c87179d959f1313928ed87b2bbd8f9e8d2323269))
+* **deps:** bump undici from 6.25.0 to 6.27.0 ([#415](https://github.com/OctopusDeploy/push-build-information-action/issues/415)) ([889c081](https://github.com/OctopusDeploy/push-build-information-action/commit/889c08125809c0fb4cc550b88755f0fa0ec32d4f))
+* **deps:** update js-yaml to resolve DoS advisory ([#422](https://github.com/OctopusDeploy/push-build-information-action/issues/422)) ([27ade45](https://github.com/OctopusDeploy/push-build-information-action/commit/27ade45a502c15a47a04efd51a1ced03821f29db))
+
 ## [4.1.3](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.2...v4.1.3) (2026-06-19)
 
 
