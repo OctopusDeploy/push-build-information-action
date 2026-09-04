@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.5](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.4...v4.1.5) (2026-09-04)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump browserslist from 4.28.1 to 4.28.8 ([#434](https://github.com/OctopusDeploy/push-build-information-action/issues/434)) ([9c46d95](https://github.com/OctopusDeploy/push-build-information-action/commit/9c46d959b5562633aaa42322743bd696213dc5cf))
+* **deps:** bump brace-expansion override to resolve DoS bypass ([#432](https://github.com/OctopusDeploy/push-build-information-action/issues/432)) ([4938527](https://github.com/OctopusDeploy/push-build-information-action/commit/4938527243be0452f40a3ce6aa32d7057a056ece))
+* **deps:** bump brace-expansion to resolve DoS advisory ([#425](https://github.com/OctopusDeploy/push-build-information-action/issues/425)) ([a369661](https://github.com/OctopusDeploy/push-build-information-action/commit/a369661f6dc8406e103e5aa36905311367d0ef4c))
+* **deps:** Fix npm audit vulnerabilities ([#433](https://github.com/OctopusDeploy/push-build-information-action/issues/433)) ([876422b](https://github.com/OctopusDeploy/push-build-information-action/commit/876422b08f570d395df96b4be67cc4b8a7f77fe6))
+* **deps:** resolve new brace-expansion and js-yaml advisories ([#430](https://github.com/OctopusDeploy/push-build-information-action/issues/430)) ([22bd803](https://github.com/OctopusDeploy/push-build-information-action/commit/22bd803a6e01eb6199185dc831d75e2c403367fb))
+* **deps:** resolve remaining npm audit advisories ([#427](https://github.com/OctopusDeploy/push-build-information-action/issues/427)) ([c9efabb](https://github.com/OctopusDeploy/push-build-information-action/commit/c9efabb79a77d2e6e9186af44bf7dc319851a0c1))
+
 ## [4.1.4](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.3...v4.1.4) (2026-07-22)
 
 
