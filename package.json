@@ -4,14 +4,14 @@
     "url": "https://github.com/OctopusDeploy/push-build-information-action/issues"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.1.1",
+    "@actions/core": "3.0.0",
+    "@actions/github": "9.1.1",
     "@octokit/webhooks-types": "6.10.0",
     "@octopusdeploy/api-client": "3.11.6"
   },
   "overrides": {
     "form-data": "4.0.6",
-    "brace-expansion": "^5.0.9"
+    "brace-expansion": "5.0.9"
   },
   "description": "GitHub Action to Push Build Information to Octopus Deploy",
   "devDependencies": {
