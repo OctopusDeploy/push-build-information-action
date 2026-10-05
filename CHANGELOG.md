@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.7](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.6...v4.1.7) (2026-10-05)
+
+
+### Bug Fixes
+
+* **deps:** resolve npm audit advisories ([#446](https://github.com/OctopusDeploy/push-build-information-action/issues/446)) ([0cfe4fd](https://github.com/OctopusDeploy/push-build-information-action/commit/0cfe4fdbbed079c7f44ee8ed3d28bb4f4451d259))
+
 ## [4.1.6](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.5...v4.1.6) (2026-09-21)
 
 
