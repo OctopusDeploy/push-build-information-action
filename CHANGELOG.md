@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.8](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.7...v4.1.8) (2026-10-11)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump handlebars from 4.7.9 to 4.7.10 ([#448](https://github.com/OctopusDeploy/push-build-information-action/issues/448)) ([e10bcb1](https://github.com/OctopusDeploy/push-build-information-action/commit/e10bcb1cdff63d446d6d1809ae0ccfa3ded2d20b))
+
 ## [4.1.7](https://github.com/OctopusDeploy/push-build-information-action/compare/v4.1.6...v4.1.7) (2026-10-05)
 
 
